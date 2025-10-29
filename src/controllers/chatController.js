@@ -1,8 +1,6 @@
 const Message = require('../models/Message');
 
-// @desc    Obtener historial de mensajes del chat
-// @route   GET /api/chat/messages
-// @access  Private
+
 exports.getMessages = async (req, res) => {
   try {
     const { limit = 50 } = req.query;
@@ -12,7 +10,7 @@ exports.getMessages = async (req, res) => {
       .limit(parseInt(limit))
       .populate('userId', 'nombre email');
 
-    // Invertir para mostrar en orden cronológico
+  
     messages.reverse();
 
     res.status(200).json({
@@ -28,8 +26,6 @@ exports.getMessages = async (req, res) => {
   }
 };
 
-// @desc    Guardar mensaje en la base de datos
-// @access  Private (usado por Socket.IO)
 exports.saveMessage = async (messageData) => {
   try {
     const message = await Message.create(messageData);
@@ -40,9 +36,6 @@ exports.saveMessage = async (messageData) => {
   }
 };
 
-// @desc    Eliminar mensajes antiguos (limpieza)
-// @route   DELETE /api/chat/messages/cleanup
-// @access  Private/Admin
 exports.cleanupMessages = async (req, res) => {
   try {
     const { days = 30 } = req.query;

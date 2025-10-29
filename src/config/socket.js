@@ -77,7 +77,7 @@ const initializeSocket = (io) => {
           rol: socket.userRole
         });
 
-        console.log(`💬 Mensaje de ${socket.userName}: ${data.mensaje}`);
+        console.log(`Mensaje de ${socket.userName}: ${data.mensaje}`);
       } catch (error) {
         console.error('Error al guardar mensaje:', error);
         socket.emit('error-mensaje', {

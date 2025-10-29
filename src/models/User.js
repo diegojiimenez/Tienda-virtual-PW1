@@ -31,12 +31,10 @@ const userSchema = new mongoose.Schema({
     default: true
   }
 }, {
-  timestamps: true // Agrega createdAt y updatedAt automáticamente
+  timestamps: true 
 });
 
-// Middleware para hashear password antes de guardar
 userSchema.pre('save', async function(next) {
-  // Solo hashear si el password fue modificado
   if (!this.isModified('password')) {
     return next();
   }
@@ -50,12 +48,10 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Método para comparar passwords
 userSchema.methods.compararPassword = async function(passwordIngresado) {
   return await bcrypt.compare(passwordIngresado, this.password);
 };
 
-// Método para ocultar password en JSON
 userSchema.methods.toJSON = function() {
   const user = this.toObject();
   delete user.password;

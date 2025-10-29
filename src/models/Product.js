@@ -50,7 +50,6 @@ const productSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Índice para búsquedas más rápidas
 productSchema.index({ nombre: 'text', descripcion: 'text' });
 
 module.exports = mongoose.model('Product', productSchema);

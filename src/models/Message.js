@@ -23,7 +23,6 @@ const messageSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Índice para consultas más rápidas
 messageSchema.index({ timestamp: -1 });
 
 module.exports = mongoose.model('Message', messageSchema);

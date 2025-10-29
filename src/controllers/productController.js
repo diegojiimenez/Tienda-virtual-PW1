@@ -1,13 +1,10 @@
 const Product = require('../models/Product');
 
-// @desc    Obtener todos los productos
-// @route   GET /api/products
-// @access  Public
+
 exports.getProducts = async (req, res) => {
   try {
     const { categoria, disponible, search } = req.query;
     
-    // Construir filtros
     let filtro = {};
     
     if (categoria) {
@@ -42,9 +39,6 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// @desc    Obtener un producto por ID
-// @route   GET /api/products/:id
-// @access  Public
 exports.getProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
@@ -69,12 +63,8 @@ exports.getProduct = async (req, res) => {
   }
 };
 
-// @desc    Crear nuevo producto
-// @route   POST /api/products
-// @access  Private/Admin
 exports.createProduct = async (req, res) => {
   try {
-    // Agregar usuario que lo creó
     req.body.createdBy = req.user.id;
 
     const product = await Product.create(req.body);
@@ -92,9 +82,6 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// @desc    Actualizar producto
-// @route   PUT /api/products/:id
-// @access  Private/Admin
 exports.updateProduct = async (req, res) => {
   try {
     let product = await Product.findById(req.params.id);
@@ -124,9 +111,6 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// @desc    Eliminar producto
-// @route   DELETE /api/products/:id
-// @access  Private/Admin
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);

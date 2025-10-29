@@ -1,21 +1,16 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Generar JWT
 const generarToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE
   });
 };
 
-// @desc    Registrar nuevo usuario
-// @route   POST /api/auth/register
-// @access  Public
 exports.register = async (req, res) => {
   try {
     const { nombre, email, password, rol } = req.body;
 
-    // Validar campos requeridos
     if (!nombre || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -23,7 +18,6 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Verificar si el usuario ya existe
     const usuarioExiste = await User.findOne({ email });
     if (usuarioExiste) {
       return res.status(400).json({
@@ -32,15 +26,13 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Crear usuario
     const user = await User.create({
       nombre,
       email,
       password,
-      rol: rol || 'usuario' // Por defecto es usuario
+      rol: rol || 'usuario' 
     });
 
-    // Generar token
     const token = generarToken(user._id);
 
     res.status(201).json({
@@ -62,14 +54,10 @@ exports.register = async (req, res) => {
   }
 };
 
-// @desc    Login de usuario
-// @route   POST /api/auth/login
-// @access  Public
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validar campos
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -77,7 +65,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Buscar usuario y incluir password
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
@@ -87,7 +74,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Verificar password
     const passwordCorrecto = await user.compararPassword(password);
 
     if (!passwordCorrecto) {
@@ -97,7 +83,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Verificar si está activo
     if (!user.activo) {
       return res.status(401).json({
         success: false,
@@ -105,7 +90,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Generar token
     const token = generarToken(user._id);
 
     res.status(200).json({
@@ -127,9 +111,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// @desc    Obtener usuario actual
-// @route   GET /api/auth/me
-// @access  Private
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
