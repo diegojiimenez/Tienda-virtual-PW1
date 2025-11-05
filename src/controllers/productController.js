@@ -3,33 +3,61 @@ const Product = require('../models/Product');
 
 exports.getProducts = async (req, res) => {
   try {
-    const { categoria, disponible, search } = req.query;
-    
-    let filtro = {};
-    
-    if (categoria) {
-      filtro.categoria = categoria;
-    }
-    
-    if (disponible !== undefined) {
-      filtro.disponible = disponible === 'true';
-    }
-    
+    const { 
+      search, 
+      categoria, 
+      talla, 
+      color, 
+      precioMin, 
+      precioMax,
+      disponible 
+    } = req.query;
+
+    let query = {};
+
+    // Búsqueda por texto
     if (search) {
-      filtro.$or = [
+      query.$or = [
         { nombre: { $regex: search, $options: 'i' } },
         { descripcion: { $regex: search, $options: 'i' } }
       ];
     }
 
-    const products = await Product.find(filtro)
-      .populate('createdBy', 'nombre email')
-      .sort({ createdAt: -1 });
+    // Filtro por categoría
+    if (categoria) {
+      query.categoria = categoria;
+    }
 
-    res.status(200).json({
+    // Filtro por talla
+    if (talla) {
+      query.tallas = talla;
+    }
+
+    // Filtro por color
+    if (color) {
+      query.colores = { $regex: color, $options: 'i' };
+    }
+
+    // Filtro por precio
+    if (precioMin || precioMax) {
+      query.precio = {};
+      if (precioMin) query.precio.$gte = Number(precioMin);
+      if (precioMax) query.precio.$lte = Number(precioMax);
+    }
+
+    // Filtro por disponibilidad
+    if (disponible !== undefined) {
+      query.disponible = disponible === 'true';
+    }
+
+    const productos = await Product.find(query)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({
       success: true,
-      count: products.length,
-      data: products
+      count: productos.length,
+      data: productos
     });
   } catch (error) {
     res.status(500).json({
