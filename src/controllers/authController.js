@@ -9,12 +9,12 @@ const generarToken = (id) => {
 
 exports.register = async (req, res) => {
   try {
-    const { nombre, email, password, rol } = req.body;
+    const { nombre, apellido, email, password, rol } = req.body;
 
-    if (!nombre || !email || !password) {
+    if (!nombre || !apellido || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Por favor complete todos los campos'
+        message: 'Por favor complete todos los campos obligatorios'
       });
     }
 
@@ -28,6 +28,7 @@ exports.register = async (req, res) => {
 
     const user = await User.create({
       nombre,
+      apellido,
       email,
       password,
       rol: rol || 'usuario' 
@@ -42,6 +43,7 @@ exports.register = async (req, res) => {
       user: {
         id: user._id,
         nombre: user.nombre,
+        apellido: user.apellido,
         email: user.email,
         rol: user.rol
       }

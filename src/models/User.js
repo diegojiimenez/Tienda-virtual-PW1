@@ -7,6 +7,11 @@ const userSchema = new mongoose.Schema({
     required: [true, 'El nombre es obligatorio'],
     trim: true
   },
+  apellido: {
+    type: String,
+    required: [true, 'El apellido es obligatorio'],
+    trim: true
+  },
   email: {
     type: String,
     required: [true, 'El email es obligatorio'],
@@ -19,7 +24,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'La contraseña es obligatoria'],
     minlength: [6, 'La contraseña debe tener al menos 6 caracteres'],
-    select: false // No devolver password por defecto en las consultas
+    select: false
   },
   rol: {
     type: String,
