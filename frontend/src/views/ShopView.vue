@@ -12,11 +12,25 @@
           
           <!-- Links de navegación -->
           <div class="hidden md:flex items-center space-x-8">
+                      <router-link 
+              to="/shop" 
+              class="text-gray-900 font-medium"
+            >
+              Shop
+            </router-link>
             <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
             <router-link to="/men" class="text-gray-600 hover:text-gray-900">Men</router-link>
             <router-link to="/women" class="text-gray-600 hover:text-gray-900">Women</router-link>
             <router-link to="/accessories" class="text-gray-600 hover:text-gray-900">Accessories</router-link>
             <router-link to="/sale" class="text-gray-600 hover:text-gray-900">Sale</router-link>
+            <!-- Mostrar link de Admin solo si es administrador -->
+            <router-link 
+              v-if="authStore.isAdmin" 
+              to="/admin" 
+              class="text-gray-600 hover:text-gray-900"
+            >
+              Admin
+            </router-link>
           </div>
 
           <!-- Iconos de usuario -->

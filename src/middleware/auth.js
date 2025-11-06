@@ -11,7 +11,7 @@ exports.protect = async (req, res, next) => {
   if (!token) {
     return res.status(401).json({
       success: false,
-      message: 'No autorizado. Token no proporcionado'
+      message: 'No autorizado para acceder a esta ruta'
     });
   }
 

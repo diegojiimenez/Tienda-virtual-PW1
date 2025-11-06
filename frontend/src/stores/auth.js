@@ -58,6 +58,16 @@ export const useAuthStore = defineStore('auth', {
       this.user = null;
       this.token = null;
       this.isAuthenticated = false;
+    },
+
+    initializeAuth() {
+      const token = authService.getToken();
+      const user = authService.getCurrentUser();
+      
+      if (token && user) {
+        this.token = token;
+        this.user = user;
+      }
     }
   }
 });
