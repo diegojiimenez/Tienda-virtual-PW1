@@ -164,6 +164,10 @@ exports.createProduct = async (req, res) => {
   try {
     req.body.updatedAt = new Date();
     
+    if (req.body.stock === 0) {
+      req.body.disponible = false;
+    }
+    
     const product = await Product.create(req.body);
 
     res.status(201).json({
@@ -190,9 +194,16 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
+    // Si el stock es 0, forzar disponible = false
+    if (newStock === 0) {
+      req.body.disponible = false;
+    }
+
+    // Solo actualizar updatedAt si el stock cambió
     if (newStock !== undefined && newStock !== product.stock) {
       req.body.updatedAt = new Date();
     } else {
+      // Si el stock no cambió, preservar la fecha original
       delete req.body.updatedAt;
     }
 

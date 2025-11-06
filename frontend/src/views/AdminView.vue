@@ -507,18 +507,20 @@
         </div>
       </div>
 
-      <!-- Disponible -->
-      <div class="flex items-center">
-        <input
-          v-model="productForm.disponible"
-          type="checkbox"
-          id="disponible"
-          class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-        />
-        <label for="disponible" class="ml-2 text-sm text-gray-900">
-          Product available for sale
-        </label>
-      </div>
+<!-- Disponible -->
+<div class="flex items-center">
+  <input
+    v-model="productForm.disponible"
+    type="checkbox"
+    id="disponible"
+    :disabled="productForm.stock === 0"
+    class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+  />
+  <label for="disponible" class="ml-2 text-sm text-gray-900">
+    Product available for sale
+    <span v-if="productForm.stock === 0" class="text-red-600 font-medium">(No stock available)</span>
+  </label>
+</div>
 
       <!-- Botones -->
       <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
@@ -582,7 +584,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { 
@@ -619,32 +621,18 @@ const stats = ref({
 });
 const products = ref([]);
 
+const productMenuRefs = ref({});
+const dropdownPositions = ref({});
+
 const notification = ref({
   show: false,
-  type: 'success', // 'success', 'error', 'info'
+  type: 'success',
   title: '',
   message: ''
 });
+
 let notificationTimeout = null;
 
-const showNotification = (type, title, message) => {
-  // Limpiar timeout anterior si existe
-  if (notificationTimeout) {
-    clearTimeout(notificationTimeout);
-  }
-
-  notification.value = {
-    show: true,
-    type,
-    title,
-    message
-  };
-
-  // Auto cerrar después de 3 segundos
-  notificationTimeout = setTimeout(() => {
-    notification.value.show = false;
-  }, 3000);
-};
 const productForm = ref({
   nombre: '',
   descripcion: '',
@@ -657,12 +645,52 @@ const productForm = ref({
   disponible: true
 });
 
+// Watcher para el stock
+watch(() => productForm.value.stock, (newStock) => {
+  if (newStock === 0) {
+    productForm.value.disponible = false;
+  } else if (newStock > 0 && !productForm.value.disponible) {
+    productForm.value.disponible = true;
+  }
+});
+
 const userAvatar = computed(() => {
   return localStorage.getItem('userAvatar') || 'https://i.pravatar.cc/150?img=1';
 });
 
+const showNotification = (type, title, message) => {
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout);
+  }
+
+  notification.value = {
+    show: true,
+    type,
+    title,
+    message
+  };
+
+  notificationTimeout = setTimeout(() => {
+    notification.value.show = false;
+  }, 3000);
+};
+
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value;
+};
+
+const setProductMenuRef = (productId, el) => {
+  if (el) {
+    productMenuRefs.value[productId] = el;
+  }
+};
+
+const getDropdownPosition = (productId) => {
+  const position = dropdownPositions.value[productId];
+  if (position === 'top') {
+    return 'right-0 bottom-full mb-2';
+  }
+  return 'right-0 top-full';
 };
 
 const toggleProductMenu = (productId) => {
@@ -673,15 +701,13 @@ const toggleProductMenu = (productId) => {
 
   activeProductMenu.value = productId;
 
-  // Calcular posición en el siguiente tick
   nextTick(() => {
     const button = productMenuRefs.value[productId];
     if (button) {
       const rect = button.getBoundingClientRect();
-      const dropdownHeight = 96; // Altura aproximada del dropdown (2 items * 48px)
+      const dropdownHeight = 96;
       const spaceBelow = window.innerHeight - rect.bottom;
       
-      // Si no hay suficiente espacio abajo, abrir hacia arriba
       dropdownPositions.value[productId] = spaceBelow < dropdownHeight + 20 ? 'top' : 'bottom';
     }
   });
@@ -732,10 +758,6 @@ const openEditModal = async (product) => {
     const response = await adminService.getProductById(product.id);
     const fullProduct = response.data.data || response.data;
     
-    console.log('Full product data:', fullProduct);
-    console.log('Category from DB:', fullProduct.categoria);
-    
-    // Asegurar que la categoría sea un string limpio
     const categoria = fullProduct.categoria ? String(fullProduct.categoria).trim() : '';
     
     productForm.value = {
@@ -744,44 +766,22 @@ const openEditModal = async (product) => {
       descripcion: fullProduct.descripcion || '',
       precio: fullProduct.precio || 0,
       stock: fullProduct.stock || 0,
-      categoria: categoria, // Usar la categoría limpia
+      categoria: categoria,
       coloresString: fullProduct.colores ? fullProduct.colores.join(', ') : '',
       tallasString: fullProduct.tallas ? fullProduct.tallas.join(', ') : '',
       imagen: fullProduct.imagen || '',
       disponible: fullProduct.disponible !== undefined ? fullProduct.disponible : true
     };
     
-    console.log('Product form after load:', productForm.value);
-    console.log('Category set to:', productForm.value.categoria);
-    
-    // Esperar un tick para que Vue actualice el DOM
     await nextTick();
     
     showProductModal.value = true;
     activeProductMenu.value = null;
   } catch (error) {
     console.error('Error loading product details:', error);
-    alert('Error loading product details: ' + (error.response?.data?.message || error.message));
+    showNotification('error', 'Error', 'Failed to load product details');
   }
 };
-
-const productMenuRefs = ref({});
-const dropdownPositions = ref({});
-
-const setProductMenuRef = (productId, el) => {
-  if (el) {
-    productMenuRefs.value[productId] = el;
-  }
-};
-
-const getDropdownPosition = (productId) => {
-  const position = dropdownPositions.value[productId];
-  if (position === 'top') {
-    return 'right-0 bottom-full mb-2';
-  }
-  return 'right-0 top-full';
-};
-
 
 const closeProductModal = () => {
   showProductModal.value = false;
@@ -815,7 +815,7 @@ const saveProduct = async () => {
         ? productForm.value.tallasString.split(',').map(t => t.trim()) 
         : [],
       imagen: productForm.value.imagen,
-      disponible: productForm.value.disponible
+      disponible: productForm.value.stock > 0 ? productForm.value.disponible : false
     };
 
     if (isEditMode.value) {
@@ -902,7 +902,6 @@ const fetchProductData = async () => {
 };
 
 onMounted(async () => {
-  // Verificar si es admin
   if (!authStore.isAdmin) {
     showNotification('error', 'Access Denied', 'Only administrators can access this page.');
     router.push('/shop');
