@@ -206,12 +206,8 @@ const handleLogin = async () => {
   try {
     await authStore.login(form.email, form.password);
     
-    // Redirigir según el rol
-    if (authStore.isAdmin) {
-      router.push('/admin/dashboard');
-    } else {
-      router.push('/shop');
-    }
+    // SIEMPRE redirigir a /shop, sin importar si es admin o no
+    router.push('/shop');
   } catch (error) {
     console.error('Login error:', error);
   }
