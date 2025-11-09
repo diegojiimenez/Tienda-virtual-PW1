@@ -64,6 +64,9 @@ app.use((req, res, next) => {
 
 initializeSocket(io);
 
+const frontendDist = path.join(__dirname, 'frontend', 'dist');
+app.use(express.static(frontendDist));
+
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
