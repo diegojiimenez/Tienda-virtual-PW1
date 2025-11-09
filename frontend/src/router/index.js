@@ -5,6 +5,8 @@ import SignUpView from '@/views/SignUpView.vue'
 import ShopView from '@/views/ShopView.vue'
 import ProductDetailView from '@/views/ProductDetailView.vue'
 import AdminView from '@/views/AdminView.vue'
+import ChatView from '@/views/ChatView.vue'
+import AdminChatView from '@/views/AdminChatView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,9 +36,21 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/chat',
+      name: 'chat',
+      component: ChatView,
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: AdminView,
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/chat',
+      name: 'admin-chat',
+      component: AdminChatView,
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
@@ -55,26 +69,20 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from, next) => {
+// 👇 CAMBIAR EL ROUTER GUARD PARA ESPERAR INICIALIZACIÓN
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  // Inicializar auth si no está cargado
-  if (!authStore.user && !authStore.token) {
-    authStore.initializeAuth()
-  }
+  // 👈 ESPERAR A QUE SE INICIALICE LA AUTENTICACIÓN
+  await authStore.initializeAuth()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    // Si requiere autenticación y no está autenticado, ir a login
     next('/login')
   } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    // Si requiere admin y no es admin, ir a shop
     next('/shop')
   } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    // Si es una ruta de invitado (login/signup) y ya está autenticado
-    // SIEMPRE ir a /shop, sin importar si es admin o no
     next('/shop')
   } else {
-    // En cualquier otro caso, permitir la navegación
     next()
   }
 })

@@ -28,51 +28,40 @@
               @click="openMessages"
               class="relative p-2 text-gray-600 hover:text-gray-900"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
+              <ChatBubbleLeftRightIcon class="w-6 h-6" />
             </button>
 
-            <!-- Avatar de usuario -->
-            <div class="relative">
-              <button 
-                @click="toggleUserMenu"
-                class="flex items-center space-x-2"
+            <!-- Dropdown del usuario -->
+            <div class="relative" ref="dropdown">
+              <button
+                @click="toggleDropdown"
+                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <img 
-                  :src="userAvatar" 
-                  alt="User" 
-                  class="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
-                />
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                  <span class="text-sm font-medium text-white">
+                    {{ authStore.user?.nombre?.charAt(0).toUpperCase() }}
+                  </span>
+                </div>
+                <ChevronDownIcon class="w-4 h-4 text-gray-500" />
               </button>
 
-              <!-- Dropdown del usuario -->
-              <div 
-                v-if="showUserMenu"
-                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-200 z-50"
+              <!-- Dropdown Menu -->
+              <div
+                v-show="showDropdown"
+                class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
               >
-                <div class="px-4 py-2 border-b border-gray-200">
-                  <p class="text-sm font-medium text-gray-900">{{ authStore.userName }}</p>
-                  <p class="text-xs text-gray-500">{{ authStore.userEmail }}</p>
+                <div class="p-3 border-b border-gray-200">
+                  <p class="text-sm font-medium text-gray-900">{{ authStore.user?.nombre }} {{ authStore.user?.apellido }}</p>
+                  <p class="text-xs text-gray-500">{{ authStore.user?.email }} (Admin)</p>
                 </div>
-                <router-link 
-                  to="/profile" 
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  My Profile
-                </router-link>
-                <router-link 
-                  to="/orders" 
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  My Orders
-                </router-link>
-                <button 
-                  @click="handleLogout"
-                  class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
+                <div class="py-1">
+                  <button
+                    @click="handleLogout"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -259,6 +248,31 @@
                 <div class="bg-white rounded-lg border border-gray-200 p-6">
                   <h3 class="text-sm font-medium text-gray-600 mb-2">Total out of stock</h3>
                   <p class="text-3xl font-bold text-gray-900">{{ stats.outOfStock }}</p>
+                </div>
+              </div>
+
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900">Customer Messages</h3>
+                      <p class="text-sm text-gray-600">Manage and respond to customer inquiries</p>
+                    </div>
+                  </div>
+                  <router-link
+                    to="/admin/chat"
+                    class="inline-flex items-center px-6 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
+                  >
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+                    </svg>
+                    Open Admin Chat
+                  </router-link>
                 </div>
               </div>
 
@@ -596,7 +610,9 @@ import {
   EllipsisVerticalIcon,
   PencilIcon,
   TrashIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ChatBubbleLeftRightIcon,
+  ChevronDownIcon
 } from '@heroicons/vue/24/outline';
 import adminService from '@/services/AdminService';
 
@@ -714,7 +730,7 @@ const toggleProductMenu = (productId) => {
 };
 
 const openMessages = () => {
-  router.push('/messages');
+  router.push('/admin/chat');
 };
 
 const handleLogout = () => {
@@ -877,6 +893,10 @@ const handleClickOutside = (event) => {
     showUserMenu.value = false;
     activeProductMenu.value = null;
   }
+
+  if (dropdown.value && !dropdown.value.contains(event.target)) {
+    closeDropdown();
+  }
 };
 
 const fetchProductData = async () => {
@@ -899,6 +919,17 @@ const fetchProductData = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const showDropdown = ref(false);
+const dropdown = ref(null);
+
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+
+const closeDropdown = () => {
+  showDropdown.value = false;
 };
 
 onMounted(async () => {

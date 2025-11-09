@@ -1,73 +1,115 @@
-import { defineStore } from 'pinia';
-import authService from '@/services/auth.service';
+import { defineStore } from 'pinia'
+import { jwtDecode } from 'jwt-decode'
+import api from '@/services/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: authService.getCurrentUser(),
-    token: authService.getToken(),
-    isAuthenticated: authService.isAuthenticated(),
+    user: null,
+    token: localStorage.getItem('token') || null,
     loading: false,
-    error: null
+    error: null,
+    initialized: false 
   }),
 
   getters: {
+    isAuthenticated: (state) => !!state.token && !!state.user,
     isAdmin: (state) => state.user?.rol === 'administrador',
-    userName: (state) => state.user?.nombre || '',
+    userName: (state) => state.user ? `${state.user.nombre} ${state.user.apellido}` : '',
     userEmail: (state) => state.user?.email || ''
   },
 
   actions: {
     async login(email, password) {
-      this.loading = true;
-      this.error = null;
+      this.loading = true
+      this.error = null
 
       try {
-        const data = await authService.login(email, password);
-        this.user = data.user;
-        this.token = data.token;
-        this.isAuthenticated = true;
-        return data;
+        const response = await api.post('/auth/login', { email, password })
+        
+        this.token = response.data.token
+        this.user = response.data.user
+
+        localStorage.setItem('token', this.token)
+        api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+
+        return response.data
       } catch (error) {
-        this.error = error.response?.data?.message || 'Error al iniciar sesión';
-        throw error;
+        this.error = error.response?.data?.message || 'Error al iniciar sesión'
+        throw error
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
     async register(userData) {
-      this.loading = true;
-      this.error = null;
+      this.loading = true
+      this.error = null
 
       try {
-        const data = await authService.register(userData);
-        this.user = data.user;
-        this.token = data.token;
-        this.isAuthenticated = true;
-        return data;
+        const response = await api.post('/auth/register', userData)
+        
+        this.token = response.data.token
+        this.user = response.data.user
+
+        localStorage.setItem('token', this.token)
+        api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+
+        return response.data
       } catch (error) {
-        this.error = error.response?.data?.message || 'Error al registrar usuario';
-        throw error;
+        this.error = error.response?.data?.message || 'Error al registrarse'
+        throw error
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 
-    logout() {
-      authService.logout();
-      this.user = null;
-      this.token = null;
-      this.isAuthenticated = false;
+    async logout() {
+      this.user = null
+      this.token = null
+      this.error = null
+      this.initialized = false
+
+      localStorage.removeItem('token')
+      delete api.defaults.headers.common['Authorization']
     },
 
-    initializeAuth() {
-      const token = authService.getToken();
-      const user = authService.getCurrentUser();
+    
+    async initializeAuth() {
+      if (this.initialized) return; // Ya inicializado
       
-      if (token && user) {
-        this.token = token;
-        this.user = user;
+      const token = localStorage.getItem('token')
+      
+      if (token) {
+        try {
+          const decoded = jwtDecode(token)
+          const currentTime = Date.now() / 1000
+
+          if (decoded.exp < currentTime) {
+            console.log('Token expirado, cerrando sesión...')
+            this.logout()
+          } else {
+            this.token = token
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+            await this.fetchUserProfile() // 👈 ESPERAR A QUE TERMINE
+          }
+        } catch (error) {
+          console.error('Error al decodificar token:', error)
+          this.logout()
+        }
+      }
+      
+      this.initialized = true 
+    },
+
+    async fetchUserProfile() {
+      try {
+        const response = await api.get('/auth/me')
+        this.user = response.data.user
+        console.log('Usuario cargado:', this.user)
+      } catch (error) {
+        console.error('Error al obtener perfil:', error)
+        this.logout()
       }
     }
   }
-});
+})

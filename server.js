@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/chat', chatRoutes);
+app.use('/api/chats', require('./src/routes/chatRoutes'));
 
 app.get('/api', (req, res) => {
   res.json({
@@ -77,3 +77,21 @@ process.on('unhandledRejection', (err) => {
   console.error(`Error no manejado: ${err.message}`);
   server.close(() => process.exit(1));
 });
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    success: false, 
+    message: 'Something broke!',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+  });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ 
+    success: false, 
+    message: 'Route not found' 
+  });
+});
+
+module.exports = { app, server, io };
