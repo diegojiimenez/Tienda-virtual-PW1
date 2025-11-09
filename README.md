@@ -229,6 +229,196 @@ Para comunicación en tiempo real en el chat.
 - `GET /api/chats/:id/messages` - Obtener mensajes de un chat (protegida)
 - `POST /api/chats` - Crear nueva conversación (protegida)
 
+// ...existing code...
+
+## 📦 Requisitos Previos
+
+Antes de comenzar, asegúrate de tener instalado:
+
+- **Node.js** (versión 16 o superior) - [Descargar Node.js](https://nodejs.org/)
+- **npm** o **yarn** (viene con Node.js)
+- **MongoDB** (versión 5.0 o superior) - [Descargar MongoDB](https://www.mongodb.com/try/download/community)
+- **Git** - [Descargar Git](https://git-scm.com/)
+
+Verifica las instalaciones ejecutando:
+```bash
+node --version
+npm --version
+mongod --version
+```
+
+## 🚀 Instalación y Configuración
+
+### 1. Clonar el Repositorio
+
+```bash
+git clone <>
+cd tienda-ropa-PW1
+```
+
+### 2. Configurar el Backend
+
+#### Instalar dependencias del backend
+```bash
+npm install
+```
+
+#### Configurar variables de entorno
+Crea un archivo `.env` en la raíz del proyecto con el siguiente contenido:
+
+```env
+# Puerto del servidor
+PORT=5000
+
+# URL de conexión a MongoDB
+MONGODB_URI=mongodb://localhost:27017/tienda-ropa
+
+# Clave secreta para JWT 
+JWT_SECRET=
+
+# Entorno de ejecución
+NODE_ENV=development
+
+# URL del frontend (para CORS)
+FRONTEND_URL=http://localhost:5173
+```
+
+
+### 3. Configurar el Frontend
+
+#### Navegar a la carpeta del frontend
+```bash
+cd frontend
+```
+
+#### Instalar dependencias del frontend
+```bash
+npm install
+```
+
+#### Configurar variables de entorno del frontend
+Crea un archivo `.env` en la carpeta `frontend/` con:
+
+```env
+# URL del backend API
+VITE_API_URL=http://localhost:5000
+
+# URL del servidor Socket.IO
+VITE_SOCKET_URL=http://localhost:5000
+```
+
+### 4. Iniciar MongoDB
+
+Asegúrate de que MongoDB esté ejecutándose:
+
+#### En Windows:
+```bash
+mongod
+```
+
+#### En macOS/Linux:
+```bash
+sudo systemctl start mongod
+# o
+brew services start mongodb-community
+```
+
+Para verificar que MongoDB está corriendo:
+```bash
+mongosh
+```
+
+## ▶️ Ejecución del Proyecto
+
+### Opción 1: Ejecución Manual (Desarrollo)
+
+#### Terminal 1 - Backend:
+```bash
+# Desde la raíz del proyecto
+npm run dev
+```
+El servidor backend estará disponible en `http://localhost:5000`
+
+#### Terminal 2 - Frontend:
+```bash
+# Desde la raíz del proyecto
+cd frontend
+npm run dev
+```
+El frontend estará disponible en `http://localhost:5173`
+
+### Opción 2: Ejecución Concurrente (Recomendado)
+
+Si tienes configurado un script concurrente en el [package.json](package.json) raíz:
+
+```bash
+npm run dev:all
+```
+
+Esto iniciará tanto el backend como el frontend simultáneamente.
+
+## 🧪 Uso del Proyecto
+
+### 1. Acceder a la Aplicación
+
+Abre tu navegador y visita:
+```
+http://localhost:5173
+```
+
+### 2. Probar con Usuario Administrador
+
+Para probar funcionalidades de administrador:
+
+- **Email**: `admin@example.com`
+- **Contraseña**: `admin123`
+
+### 3. Crear un Nuevo Usuario
+
+1. Haz clic en "Registrarse"
+2. Completa el formulario con:
+   - Nombre completo
+   - Email válido
+   - Contraseña (mínimo 6 caracteres)
+3. Haz clic en "Crear cuenta"
+
+### 4. Funcionalidades Disponibles
+
+#### Como Cliente:
+- ✅ Navegar por el catálogo de productos
+- ✅ Buscar y filtrar productos
+- ✅ Ver detalles de productos
+- ✅ Iniciar conversaciones de chat
+- ✅ Enviar mensajes en tiempo real
+
+#### Como Administrador:
+- ✅ Todas las funcionalidades de cliente
+- ✅ Crear nuevos productos
+- ✅ Editar productos existentes
+- ✅ Eliminar productos
+- ✅ Gestionar inventario
+
+### 5. Probar el Chat en Tiempo Real
+
+1. Abre dos ventanas/pestañas del navegador
+2. Inicia sesión con diferentes usuarios en cada una
+3. Inicia una conversación desde una ventana
+4. Envía mensajes y observa la actualización en tiempo real
+
+## 🔧 Scripts Disponibles
+
+### Backend (raíz del proyecto)
+```bash
+npm start          # Inicia el servidor en modo producción
+npm run dev        # Inicia el servidor en modo desarrollo (con nodemon)
+```
+
+### Frontend (carpeta frontend/)
+```bash
+npm run dev        # Inicia el servidor de desarrollo de Vite
+npm run build      # Construye la aplicación para producción
+```
+
 ## 📝 Notas Adicionales
 - El proyecto usa ES Modules en el backend
 - El frontend está configurado con Hot Module Replacement (HMR) para desarrollo rápido
