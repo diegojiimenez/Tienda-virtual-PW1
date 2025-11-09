@@ -234,3 +234,7 @@ Para comunicación en tiempo real en el chat.
 - El frontend está configurado con Hot Module Replacement (HMR) para desarrollo rápido
 - Se incluyen configuraciones de ESLint y Prettier para mantener código consistente
 - El archivo `.gitignore` excluye `node_modules`, `.env` y archivos de build
+
+## Usuario Administrador para realizar pruebas
+Usuario: admin@example.com
+Contrasena: admin123
