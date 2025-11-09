@@ -18,7 +18,7 @@
             </div>
           </div>
           
-          <!-- Avatar de usuario -->
+          <!-- User Menu -->
           <div class="flex items-center space-x-4">
             <button 
               @click="openMessages"
@@ -29,11 +29,39 @@
               </svg>
             </button>
 
-            <img 
-              :src="userAvatar" 
-              alt="User" 
-              class="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
-            />
+            <!-- Dropdown del usuario -->
+            <div class="relative" ref="dropdown">
+              <button
+                @click="toggleDropdown"
+                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                  <span class="text-sm font-medium text-gray-700">
+                    {{ authStore.user?.nombre?.charAt(0).toUpperCase() }}
+                  </span>
+                </div>
+                <ChevronDownIcon class="w-4 h-4 text-gray-500" />
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div
+                v-show="showDropdown"
+                class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+              >
+                <div class="p-3 border-b border-gray-200">
+                  <p class="text-sm font-medium text-gray-900">{{ authStore.user?.nombre }} {{ authStore.user?.apellido }}</p>
+                  <p class="text-xs text-gray-500">{{ authStore.user?.email }}</p>
+                </div>
+                <div class="py-1">
+                  <button
+                    @click="logout"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -256,7 +284,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/stores/product';
 import { useAuthStore } from '@/stores/auth';
@@ -267,7 +295,8 @@ import {
   PlusIcon,
   TruckIcon,
   ArrowPathIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  ChevronDownIcon
 } from '@heroicons/vue/24/outline';
 import productService from '@/services/ProductService';
 import ProductCard from '@/components/ProductCard.vue';
@@ -359,7 +388,11 @@ const goBack = () => {
 };
 
 const openMessages = () => {
-  router.push('/messages');
+  if (authStore.isAdmin) {
+    router.push('/admin/chat');
+  } else {
+    router.push('/chat');
+  }
 };
 
 const viewProduct = (id) => {
@@ -444,7 +477,37 @@ watch(() => route.params.id, async (newId) => {
   }
 });
 
+// Dropdown state
+const showDropdown = ref(false);
+const dropdown = ref(null);
+
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+
+const closeDropdown = () => {
+  showDropdown.value = false;
+};
+
+const logout = () => {
+  authStore.logout();
+  router.push('/login');
+  closeDropdown();
+};
+
+// Close dropdown when clicking outside
+const handleClickOutside = (event) => {
+  if (dropdown.value && !dropdown.value.contains(event.target)) {
+    closeDropdown();
+  }
+};
+
 onMounted(() => {
   fetchProduct();
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>

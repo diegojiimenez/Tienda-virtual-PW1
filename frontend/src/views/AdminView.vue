@@ -23,13 +23,7 @@
 
           <!-- Iconos de usuario -->
           <div class="flex items-center space-x-4">
-            <!-- Botón de mensajes -->
-            <button 
-              @click="openMessages"
-              class="relative p-2 text-gray-600 hover:text-gray-900"
-            >
-              <ChatBubbleLeftRightIcon class="w-6 h-6" />
-            </button>
+
 
             <!-- Dropdown del usuario -->
             <div class="relative" ref="dropdown">

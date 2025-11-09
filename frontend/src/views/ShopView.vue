@@ -12,17 +12,12 @@
           
           <!-- Links de navegación -->
           <div class="hidden md:flex items-center space-x-8">
-                      <router-link 
+            <router-link 
               to="/shop" 
               class="text-gray-900 font-medium"
             >
               Shop
             </router-link>
-            <!-- <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
-            <router-link to="/men" class="text-gray-600 hover:text-gray-900">Men</router-link>
-            <router-link to="/women" class="text-gray-600 hover:text-gray-900">Women</router-link>
-            <router-link to="/accessories" class="text-gray-600 hover:text-gray-900">Accessories</router-link>
-            <router-link to="/sale" class="text-gray-600 hover:text-gray-900">Sale</router-link> -->
             <!-- Mostrar link de Admin solo si es administrador -->
             <router-link 
               v-if="authStore.isAdmin" 
@@ -33,7 +28,7 @@
             </router-link>
           </div>
 
-          <!-- Iconos de usuario -->
+          <!-- User Menu -->
           <div class="flex items-center space-x-4">
             <!-- Botón de mensajes -->
             <button 
@@ -48,46 +43,37 @@
               </span>
             </button>
 
-            <!-- Avatar de usuario -->
-            <div class="relative">
-              <button 
-                @click="toggleUserMenu"
-                class="flex items-center space-x-2"
+            <!-- Dropdown del usuario -->
+            <div class="relative" ref="dropdown">
+              <button
+                @click="toggleDropdown"
+                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <img 
-                  :src="userAvatar" 
-                  alt="User" 
-                  class="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
-                />
+                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                  <span class="text-sm font-medium text-gray-700">
+                    {{ authStore.user?.nombre?.charAt(0).toUpperCase() }}
+                  </span>
+                </div>
+                <ChevronDownIcon class="w-4 h-4 text-gray-500" />
               </button>
 
-              <!-- Dropdown del usuario -->
-              <div 
-                v-if="showUserMenu"
-                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-200"
+              <!-- Dropdown Menu -->
+              <div
+                v-show="showDropdown"
+                class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
               >
-                <div class="px-4 py-2 border-b border-gray-200">
-                  <p class="text-sm font-medium text-gray-900">{{ authStore.userName }}</p>
-                  <p class="text-xs text-gray-500">{{ authStore.userEmail }}</p>
+                <div class="p-3 border-b border-gray-200">
+                  <p class="text-sm font-medium text-gray-900">{{ authStore.user?.nombre }} {{ authStore.user?.apellido }}</p>
+                  <p class="text-xs text-gray-500">{{ authStore.user?.email }}</p>
                 </div>
-                <!-- <router-link 
-                  to="/profile" 
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  My Profile
-                </router-link>
-                <router-link 
-                  to="/orders" 
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  My Orders
-                </router-link> -->
-                <button 
-                  @click="handleLogout"
-                  class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
+                <div class="py-1">
+                  <button
+                    @click="logout"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -306,6 +292,10 @@ const router = useRouter();
 const authStore = useAuthStore();
 const productStore = useProductStore();
 
+// Dropdown state
+const showDropdown = ref(false);
+const dropdown = ref(null);
+
 const showUserMenu = ref(false);
 const activeFilter = ref(null);
 const unreadMessages = ref(0);
@@ -404,10 +394,29 @@ const handleLogout = () => {
   router.push('/login');
 };
 
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+
+const closeDropdown = () => {
+  showDropdown.value = false;
+};
+
+const logout = () => {
+  authStore.logout();
+  router.push('/login');
+  closeDropdown();
+};
+
 const handleClickOutside = (event) => {
+  // Manejar otros filtros
   if (!event.target.closest('.relative')) {
     activeFilter.value = null;
-    showUserMenu.value = false;
+  }
+  
+  // Manejar dropdown del usuario
+  if (dropdown.value && !dropdown.value.contains(event.target)) {
+    closeDropdown();
   }
 };
 
