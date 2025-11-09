@@ -237,6 +237,21 @@
         </div>
       </div>
     </div>
+    
+    <!-- Notificación toast -->
+    <div 
+      v-if="showNotification" 
+      class="fixed top-4 right-4 z-50 bg-blue-600 text-white px-6 py-4 rounded-lg shadow-lg transition-all duration-300"
+      :class="{ 'opacity-100 translate-y-0': showNotification, 'opacity-0 -translate-y-2': !showNotification }"
+    >
+      <div class="flex items-center space-x-3">
+        <div class="text-2xl">{{ notificationIcon }}</div>
+        <div>
+          <p class="font-semibold">{{ notificationTitle }}</p>
+          <p class="text-sm opacity-90">{{ notificationMessage }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -365,38 +380,54 @@ const decreaseQuantity = () => {
   }
 };
 
+const showNotification = ref(false);
+const notificationTitle = ref('');
+const notificationMessage = ref('');
+const notificationIcon = ref('');
+
+const showToast = (title, message, icon) => {
+  notificationTitle.value = title;
+  notificationMessage.value = message;
+  notificationIcon.value = icon;
+  showNotification.value = true;
+  
+  setTimeout(() => {
+    showNotification.value = false;
+  }, 4000);
+};
+
 const addToCart = () => {
   if (!isValidSelection.value) {
-    alert('Please select all required options');
+    showToast(
+      'Selección incompleta',
+      'Por favor selecciona todas las opciones requeridas',
+      '⚠️'
+    );
     return;
   }
 
-  // TODO: Implementar lógica del carrito
-  console.log('Adding to cart:', {
-    product: product.value._id,
-    color: selectedColor.value,
-    size: selectedSize.value,
-    quantity: quantity.value
-  });
-
-  alert('Product added to cart!');
+  showToast(
+    'Carrito en desarrollo',
+    'Esta funcionalidad estará disponible próximamente',
+    '🛒'
+  );
 };
 
 const buyNow = () => {
   if (!isValidSelection.value) {
-    alert('Please select all required options');
+    showToast(
+      'Selección incompleta',
+      'Por favor selecciona todas las opciones requeridas',
+      '⚠️'
+    );
     return;
   }
 
-  // TODO: Implementar compra directa
-  console.log('Buy now:', {
-    product: product.value._id,
-    color: selectedColor.value,
-    size: selectedSize.value,
-    quantity: quantity.value
-  });
-
-  router.push('/checkout');
+  showToast(
+    'Compra directa próximamente',
+    'Estamos trabajando en esta funcionalidad',
+    '🚀'
+  );
 };
 
 // Watch para recargar el producto cuando cambie la ruta
