@@ -236,5 +236,6 @@ Para comunicación en tiempo real en el chat.
 - El archivo `.gitignore` excluye `node_modules`, `.env` y archivos de build
 
 ## Usuario Administrador para realizar pruebas
-Usuario: admin@example.com
+Usuario: admin@example.com  
+
 Contrasena: admin123
