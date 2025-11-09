@@ -229,7 +229,6 @@ Para comunicación en tiempo real en el chat.
 - `GET /api/chats/:id/messages` - Obtener mensajes de un chat (protegida)
 - `POST /api/chats` - Crear nueva conversación (protegida)
 
-// ...existing code...
 
 ## 📦 Requisitos Previos
 
