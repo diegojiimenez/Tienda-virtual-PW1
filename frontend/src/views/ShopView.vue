@@ -392,7 +392,11 @@ const viewProduct = (id) => {
 };
 
 const openMessages = () => {
-  router.push('/messages');
+  if (authStore.isAdmin) {
+    router.push('/admin/chat');
+  } else {
+    router.push('/chat');
+  }
 };
 
 const handleLogout = () => {
