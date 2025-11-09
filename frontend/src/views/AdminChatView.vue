@@ -75,7 +75,7 @@
             </select>
           </div>
 
-          <div>
+          <!-- <div>
             <select v-model="selectedStatus" @change="filterChats"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900">
               <option value="" disabled selected>Choose a status</option>
@@ -83,7 +83,7 @@
               <option value="active">Active</option>
               <option value="closed">Closed</option>
             </select>
-          </div>
+          </div> -->
         </div>
 
         <!-- Chat List -->

@@ -13,26 +13,13 @@
           <!-- Navigation -->
           <div class="hidden md:flex items-center space-x-8">
             <router-link to="/shop" class="text-gray-600 hover:text-gray-900">Shop</router-link>
-            <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
+            <!-- <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
             <router-link to="/men" class="text-gray-600 hover:text-gray-900">Men</router-link>
-            <router-link to="/women" class="text-gray-600 hover:text-gray-900">Women</router-link>
+            <router-link to="/women" class="text-gray-600 hover:text-gray-900">Women</router-link> -->
           </div>
 
           <!-- User Menu -->
           <div class="flex items-center space-x-4">
-            <!-- Botón de mensajes -->
-            <button 
-              @click="$router.push('/chat')"
-              class="relative p-2 text-gray-600 hover:text-gray-900"
-            >
-              <ChatBubbleLeftRightIcon class="w-6 h-6" />
-              <span 
-                v-if="chatStore.totalUnreadMessages > 0"
-                class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full"
-              >
-                {{ chatStore.totalUnreadMessages }}
-              </span>
-            </button>
 
             <!-- Dropdown del usuario -->
             <div class="relative" ref="dropdown">
@@ -150,13 +137,6 @@
             </div>
           </div>
 
-          <!-- End Chat Button -->
-          <button
-            @click="closeChat"
-            class="w-full py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            End Chat
-          </button>
         </div>
 
         <!-- Channel List (cuando no hay chat seleccionado) -->

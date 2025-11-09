@@ -23,7 +23,7 @@
           </select>
         </div>
   
-        <div>
+        <!-- <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <select
             v-model="selectedStatus"
@@ -34,7 +34,7 @@
             <option value="active">Active</option>
             <option value="closed">Closed</option>
           </select>
-        </div>
+        </div> -->
       </div>
   
       <!-- Chat List -->
@@ -71,7 +71,7 @@
                 >
                   {{ chat.unreadCount.admin }}
                 </span>
-                <span
+                <!-- <span
                   class="px-2 py-0.5 text-xs rounded-full"
                   :class="{
                     'bg-green-100 text-green-800': chat.status === 'active',
@@ -79,7 +79,7 @@
                   }"
                 >
                   {{ chat.status }}
-                </span>
+                </span> -->
               </div>
             </div>
   
