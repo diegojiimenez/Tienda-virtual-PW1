@@ -10,9 +10,9 @@
           </div>
           
           <div class="hidden md:flex items-center space-x-8">
-            <router-link to="/shop" class="text-gray-600 hover:text-gray-900">Shop</router-link>
+            <!-- <router-link to="/shop" class="text-gray-600 hover:text-gray-900">Shop</router-link>
             <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
-            <router-link to="/sale" class="text-gray-600 hover:text-gray-900">Sale</router-link>
+            <router-link to="/sale" class="text-gray-600 hover:text-gray-900">Sale</router-link> -->
             <router-link to="/signup" class="text-gray-600 hover:text-gray-900">Sign Up</router-link>
           </div>
         </div>
@@ -73,16 +73,16 @@
             <p v-if="errors.password" class="mt-1 text-sm text-red-600">{{ errors.password }}</p>
           </div>
 
-          <!-- Forgot password -->
-          <div class="text-left">
+          <!-- Forgot password - COMENTADO PARA IMPLEMENTAR DESPUÉS -->
+          <!-- <div class="text-left">
             <router-link to="/forgot-password" class="text-sm text-gray-500 hover:text-gray-700">
               Forgot password?
             </router-link>
-          </div>
+          </div> -->
 
           <!-- Error general -->
-          <div v-if="authStore.error" class="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p class="text-sm text-red-600">{{ authStore.error }}</p>
+          <div v-if="localError" class="p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-sm text-red-600">{{ localError }}</p>
           </div>
 
           <!-- Botón Log in -->
@@ -101,18 +101,19 @@
             </span>
           </button>
 
+          <!-- SOCIAL LOGIN - COMENTADO PARA IMPLEMENTAR DESPUÉS -->
           <!-- Divider -->
-          <div class="relative">
+          <!-- <div class="relative">
             <div class="absolute inset-0 flex items-center">
               <div class="w-full border-t border-gray-300"></div>
             </div>
             <div class="relative flex justify-center text-sm">
               <span class="px-2 bg-white text-gray-500">Or continue with</span>
             </div>
-          </div>
+          </div> -->
 
           <!-- Social buttons -->
-          <div class="grid grid-cols-2 gap-3">
+          <!-- <div class="grid grid-cols-2 gap-3">
             <button
               type="button"
               @click="handleSocialLogin('facebook')"
@@ -137,7 +138,7 @@
               </svg>
               <span>Google</span>
             </button>
-          </div>
+          </div> -->
         </form>
 
         <!-- Sign up link -->
@@ -153,7 +154,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline';
@@ -163,6 +164,9 @@ const authStore = useAuthStore();
 
 const showPassword = ref(false);
 
+// SOLO usar localError para mostrar errores
+const localError = ref('');
+
 const form = reactive({
   email: '',
   password: ''
@@ -171,6 +175,12 @@ const form = reactive({
 const errors = reactive({
   email: '',
   password: ''
+});
+
+// Limpiar errores al montar el componente
+onMounted(() => {
+  authStore.error = null;
+  localError.value = '';
 });
 
 const validateForm = () => {
@@ -200,21 +210,35 @@ const validateForm = () => {
   return true;
 };
 
-const handleLogin = async () => {
+const handleLogin = async (event) => {
+  // EVITAR que el formulario se envíe por defecto
+  event.preventDefault();
+  
   if (!validateForm()) return;
   
+  // Limpiar error anterior
+  localError.value = '';
+  authStore.error = null;
+  
   try {
-    await authStore.login(form.email, form.password);
+    // Usar las credenciales reales de la base de datos
+    const success = await authStore.login(form.email, form.password);
     
-    // SIEMPRE redirigir a /shop, sin importar si es admin o no
-    router.push('/shop');
+    if (success) {
+      // Login exitoso, redirigir
+      router.push('/shop');
+    } else {
+      // Login falló - FORZAR mostrar el error
+      localError.value = 'Invalid email or password';
+    }
   } catch (error) {
     console.error('Login error:', error);
+    localError.value = 'Invalid email or password';
   }
 };
 
-const handleSocialLogin = (provider) => {
-  // Implementacion Pendiente
-  alert(`Login con ${provider} - Funcionalidad pendiente`);
-};
+// const handleSocialLogin = (provider) => {
+//   // Implementacion Pendiente
+//   alert(`Login con ${provider} - Funcionalidad pendiente`);
+// };
 </script>

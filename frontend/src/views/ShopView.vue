@@ -18,11 +18,11 @@
             >
               Shop
             </router-link>
-            <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
+            <!-- <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
             <router-link to="/men" class="text-gray-600 hover:text-gray-900">Men</router-link>
             <router-link to="/women" class="text-gray-600 hover:text-gray-900">Women</router-link>
             <router-link to="/accessories" class="text-gray-600 hover:text-gray-900">Accessories</router-link>
-            <router-link to="/sale" class="text-gray-600 hover:text-gray-900">Sale</router-link>
+            <router-link to="/sale" class="text-gray-600 hover:text-gray-900">Sale</router-link> -->
             <!-- Mostrar link de Admin solo si es administrador -->
             <router-link 
               v-if="authStore.isAdmin" 
@@ -70,7 +70,7 @@
                   <p class="text-sm font-medium text-gray-900">{{ authStore.userName }}</p>
                   <p class="text-xs text-gray-500">{{ authStore.userEmail }}</p>
                 </div>
-                <router-link 
+                <!-- <router-link 
                   to="/profile" 
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
@@ -81,7 +81,7 @@
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   My Orders
-                </router-link>
+                </router-link> -->
                 <button 
                   @click="handleLogout"
                   class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"

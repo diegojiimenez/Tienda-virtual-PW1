@@ -10,9 +10,9 @@
           </div>
           
           <div class="hidden md:flex items-center space-x-8">
-            <router-link to="/shop" class="text-gray-600 hover:text-gray-900">Shop</router-link>
+            <!-- <router-link to="/shop" class="text-gray-600 hover:text-gray-900">Shop</router-link>
             <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
-            <router-link to="/brands" class="text-gray-600 hover:text-gray-900">Brands</router-link>
+            <router-link to="/brands" class="text-gray-600 hover:text-gray-900">Brands</router-link> -->
             <router-link to="/login" class="text-gray-600 hover:text-gray-900">Sign In</router-link>
           </div>
         </div>
