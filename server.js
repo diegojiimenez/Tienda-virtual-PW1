@@ -18,18 +18,20 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || '*',
-    methods: ['GET', 'POST'],
+    origin: process.env.NODE_ENV === 'production' ? false : 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   }
 });
 
 connectDB();
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  credentials: true
-}));
+if (process.env.NODE_ENV !== 'production') {
+  app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+  }));
+}
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -51,21 +53,20 @@ app.get('/api', (req, res) => {
     }
   });
 });
-
-app.use(errorHandler);
+const frontendDist = path.join(__dirname, 'frontend', 'dist');
+app.use(express.static(frontendDist));
 
 app.use((req, res, next) => {
   if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(frontendDist, 'index.html'));
   } else {
     next();
   }
 });
 
-initializeSocket(io);
+app.use(errorHandler);
 
-const frontendDist = path.join(__dirname, 'frontend', 'dist');
-app.use(express.static(frontendDist));
+initializeSocket(io);
 
 const PORT = process.env.PORT || 3000;
 
@@ -82,15 +83,6 @@ server.listen(PORT, () => {
 process.on('unhandledRejection', (err) => {
   console.error(`Error no manejado: ${err.message}`);
   server.close(() => process.exit(1));
-});
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: 'Something broke!',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-  });
 });
 
 app.use((req, res) => {
