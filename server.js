@@ -1,4 +1,7 @@
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -19,7 +22,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' ? false : 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST'],
     credentials: true
   }
 });
@@ -32,27 +35,28 @@ if (process.env.NODE_ENV !== 'production') {
     credentials: true
   }));
 }
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static(path.join(__dirname, 'public')));
-
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/chats', require('./src/routes/chatRoutes'));
+app.use('/api/chats', chatRoutes);
 
 app.get('/api', (req, res) => {
   res.json({
     success: true,
     message: 'API de Tienda de Ropa',
     version: '1.0.0',
+    environment: process.env.NODE_ENV,
     endpoints: {
       auth: '/api/auth',
       products: '/api/products',
-      chat: '/api/chat'
+      chats: '/api/chats'
     }
   });
 });
+
 const frontendDist = path.join(__dirname, 'frontend', 'dist');
 app.use(express.static(frontendDist));
 
@@ -70,26 +74,19 @@ initializeSocket(io);
 
 const PORT = process.env.PORT || 3000;
 
-server.listen(PORT, () => {
-  console.log('='.repeat(50));
+server.listen(PORT, '0.0.0.0', () => {
+  console.log('='.repeat(60));
   console.log(`Servidor corriendo en puerto ${PORT}`);
-  console.log(`URL: http://localhost:${PORT}`);
-  console.log(`API: http://localhost:${PORT}/api`);
-  console.log(`Chat con Socket.IO habilitado`);
-  console.log(`JWT Autenticación activada`);
-  console.log('='.repeat(50));
+  console.log(`Modo: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`API: /api`);
+  console.log(`Socket.IO: habilitado`);
+  console.log(`JWT: activado`);
+  console.log('='.repeat(60));
 });
 
 process.on('unhandledRejection', (err) => {
   console.error(`Error no manejado: ${err.message}`);
   server.close(() => process.exit(1));
-});
-
-app.use((req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: 'Route not found' 
-  });
 });
 
 module.exports = { app, server, io };
