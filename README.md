@@ -92,7 +92,8 @@ src/
 │   └── User.js            # Modelo de usuarios
 └── routes/
     ├── authRoutes.js      # Rutas de autenticación
-    └── ...                # Otras rutas (productos, chat, etc.)
+    └── chatRoutes.js
+    └── productRoutes.js
 ```
 
 **Descripción de componentes del Backend:**
