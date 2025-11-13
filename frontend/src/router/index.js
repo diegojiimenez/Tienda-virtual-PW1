@@ -69,11 +69,9 @@ const router = createRouter({
   ]
 })
 
-// 👇 CAMBIAR EL ROUTER GUARD PARA ESPERAR INICIALIZACIÓN
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  // 👈 ESPERAR A QUE SE INICIALICE LA AUTENTICACIÓN
   await authStore.initializeAuth()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
