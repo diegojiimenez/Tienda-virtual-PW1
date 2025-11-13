@@ -90,7 +90,7 @@ export const useAuthStore = defineStore('auth', {
           } else {
             this.token = token
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-            await this.fetchUserProfile() // 👈 ESPERAR A QUE TERMINE
+            await this.fetchUserProfile() 
           }
         } catch (error) {
           console.error('Error al decodificar token:', error)
