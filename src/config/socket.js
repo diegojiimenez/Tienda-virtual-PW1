@@ -7,7 +7,7 @@ const initializeSocket = (io) => {
   // Middleware de autenticación
   io.use(async (socket, next) => {
     try {
-      console.log('🔐 Intentando autenticar socket...');
+      console.log('Intentando autenticar socket...');
       const token = socket.handshake.auth.token;
       
       if (!token) {
@@ -17,7 +17,6 @@ const initializeSocket = (io) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       console.log('🔍 Token decodificado COMPLETO:', decoded);
       
-      // 🔥 PROBAR DIFERENTES CAMPOS POSIBLES
       const userId = decoded.userId || decoded.id || decoded.user_id || decoded._id;
 
       
@@ -50,7 +49,6 @@ const initializeSocket = (io) => {
         socket.join(roomName);
         console.log(`🔗 Usuario ${socket.user.nombre} se unió al canal ${roomName}`);
         
-        // 🔥 FIX: Si es admin, marcar mensajes como leídos automáticamente
         if (socket.user.rol === 'administrador') {
           console.log('📖 Admin se unió, marcando mensajes como leídos...');
           
@@ -58,7 +56,7 @@ const initializeSocket = (io) => {
           if (chat) {
             chat.unreadCount.admin = 0;
             await chat.save();
-            console.log('✅ Mensajes marcados como leídos para admin');
+            console.log('Mensajes marcados como leídos para admin');
             
             // Emitir actualización de unread count
             io.to(roomName).emit('unread-updated', {
@@ -69,7 +67,7 @@ const initializeSocket = (io) => {
         }
         
       } catch (error) {
-        console.error('❌ Error joining channel:', error);
+        console.error('Error joining channel:', error);
         socket.emit('error', { message: 'Error joining channel' });
       }
     });
@@ -77,26 +75,26 @@ const initializeSocket = (io) => {
     // Enviar mensaje de USUARIO
     socket.on('send-message', async (data) => {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🔵 PASO 1: Mensaje de USUARIO recibido en backend');
-      console.log('📋 Data completa:', JSON.stringify(data, null, 2));
-      console.log('👤 Usuario que envía:', socket.user.nombre, '| ID:', socket.user._id);
+      console.log('PASO 1: Mensaje de USUARIO recibido en backend');
+      console.log('Data completa:', JSON.stringify(data, null, 2));
+      console.log('Usuario que envía:', socket.user.nombre, '| ID:', socket.user._id);
       
       try {
         const { userId, channel, content } = data;
 
-        console.log('🔵 PASO 2: Validando usuario...');
+        console.log('PASO 2: Validando usuario...');
         if (socket.user._id.toString() !== userId) {
-          console.log('❌ Usuario no autorizado');
+          console.log('Usuario no autorizado');
           socket.emit('error', { message: 'Unauthorized' });
           return;
         }
-        console.log('✅ Usuario validado correctamente');
+        console.log('Usuario validado correctamente');
 
-        console.log('🔵 PASO 3: Buscando chat en DB...');
+        console.log('PASO 3: Buscando chat en DB...');
         let chat = await Chat.findOne({ user: userId, channel });
         
         if (!chat) {
-          console.log('⚠️ Chat no existe, creando nuevo...');
+          console.log('Chat no existe, creando nuevo...');
           chat = new Chat({
             user: userId,
             channel,
@@ -106,7 +104,7 @@ const initializeSocket = (io) => {
             status: 'active'
           });
         } else {
-          console.log('✅ Chat encontrado:', chat._id);
+          console.log('Chat encontrado:', chat._id);
         }
 
         console.log('🔵 PASO 4: Creando mensaje...');
@@ -121,9 +119,9 @@ const initializeSocket = (io) => {
         chat.lastMessage = new Date();
         chat.unreadCount.admin += 1;
         
-        console.log('🔵 PASO 5: Guardando en DB...');
+        console.log('PASO 5: Guardando en DB...');
         await chat.save();
-        console.log('✅ Mensaje guardado en DB');
+        console.log('Mensaje guardado en DB');
 
         const messageWithSender = {
           ...newMessage,
@@ -135,22 +133,17 @@ const initializeSocket = (io) => {
           }
         };
 
-        console.log('🔵 PASO 6: Preparando emisión...');
-        console.log('📤 Mensaje a emitir:', JSON.stringify(messageWithSender, null, 2));
+        console.log('PASO 6: Preparando emisión...');
+        console.log('Mensaje a emitir:', JSON.stringify(messageWithSender, null, 2));
 
-        // 🔥 FIX: Emitir a la sala del usuario (incluye al usuario que envió)
         const userRoom = `${userId}:${channel}`;
-        console.log('🔵 PASO 7: Emitiendo a sala de usuario:', userRoom);
+        console.log('PASO 7: Emitiendo a sala de usuario:', userRoom);
         io.to(userRoom).emit('new-message', {
           chatId: chat._id,
           channel,
           message: messageWithSender
         });
-        console.log('✅ Emitido a sala de usuario (incluye al remitente)');
-
-        // Emitir a TODOS los admins conectados
-        console.log('🔵 PASO 8: Emitiendo a TODOS los clientes (admins)...');
-        console.log('📊 Clientes conectados en total:', io.sockets.sockets.size);
+        console.log('Emitido a sala de usuario (incluye al remitente)');
         
         io.emit('new-user-message', {
           userId,
@@ -158,46 +151,40 @@ const initializeSocket = (io) => {
           chatId: chat._id,
           message: messageWithSender
         });
-        console.log('✅ Emitido new-user-message a TODOS');
 
-        console.log('🎉 PROCESO COMPLETADO - Mensaje de usuario enviado');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       } catch (error) {
-        console.error('❌ ERROR en send-message:', error);
+        console.error('ERROR en send-message:', error);
         console.error('Stack:', error.stack);
         socket.emit('error', { message: 'Error sending message' });
       }
     });
 
-    // 🔥 MENSAJE DE ADMIN
+    //  MENSAJE DE ADMIN
     socket.on('send-admin-message', async (data) => {
-      console.log('🎯 *** EVENTO send-admin-message RECIBIDO ***');
-      console.log('📋 Datos recibidos:', JSON.stringify(data, null, 2));
-      console.log('👮 Usuario que envía:', socket.user.nombre, '- Rol:', socket.user.rol);
+      console.log('*** EVENTO send-admin-message RECIBIDO ***');
+      console.log('Datos recibidos:', JSON.stringify(data, null, 2));
+      console.log('Usuario que envía:', socket.user.nombre, '- Rol:', socket.user.rol);
       
       try {
         const { userId, channel, content } = data;
 
         // Verificar que el usuario es admin
         if (socket.user.rol !== 'administrador') {
-          console.log('❌ Usuario no es admin:', socket.user.rol);
+          console.log('Usuario no es admin:', socket.user.rol);
           socket.emit('error', { message: 'Unauthorized - Admin only' });
           return;
         }
-
-        console.log('✅ Admin verificado, buscando chat...');
 
         // Buscar el chat existente
         let chat = await Chat.findOne({ user: userId, channel }).populate('user', 'nombre apellido email');
         
         if (!chat) {
-          console.log('❌ Chat no encontrado para userId:', userId, 'channel:', channel);
+          console.log('Chat no encontrado para userId:', userId, 'channel:', channel);
           socket.emit('error', { message: 'Chat not found' });
           return;
         }
 
-        console.log('✅ Chat encontrado:', chat._id);
 
         // Crear el mensaje del admin
         const newMessage = {
@@ -214,7 +201,7 @@ const initializeSocket = (io) => {
         
         await chat.save();
         
-        console.log('✅ Mensaje de admin guardado en DB:', newMessage);
+        console.log('Mensaje de admin guardado en DB:', newMessage);
 
         const messageWithSender = {
           ...newMessage,
@@ -228,7 +215,7 @@ const initializeSocket = (io) => {
 
         // Emitir a la sala del usuario
         const userRoom = `${userId}:${channel}`;
-        console.log('📤 Emitiendo a sala de usuario:', userRoom);
+        console.log('Emitiendo a sala de usuario:', userRoom);
         io.to(userRoom).emit('new-admin-message', {
           chatId: chat._id,
           channel,
@@ -236,7 +223,7 @@ const initializeSocket = (io) => {
         });
 
         // Emitir a otros admins
-        console.log('📤 Emitiendo a otros admins...');
+        console.log('Emitiendo a otros admins...');
         socket.broadcast.emit('admin-message-sent', {
           chatId: chat._id,
           channel,
@@ -244,16 +231,16 @@ const initializeSocket = (io) => {
           message: messageWithSender
         });
         // Confirmar al admin que envió
-        console.log('✅ Confirmando al admin...');
+        console.log('Confirmando al admin...');
         socket.emit('admin-message-confirmed', {
           chatId: chat._id,
           message: messageWithSender
         });
 
-        console.log('🎉 Mensaje de admin procesado completamente');
+        console.log('Mensaje de admin procesado completamente');
 
       } catch (error) {
-        console.error('❌ Error sending admin message:', error);
+        console.error('Error sending admin message:', error);
         socket.emit('error', { message: 'Error sending admin message: ' + error.message });
       }
     });
@@ -266,10 +253,9 @@ const initializeSocket = (io) => {
       const roomName = `${userId}:${channel}`;
       
       if (socket.user.rol === 'administrador') {
-        // 🔥 Admin escribiendo -> emitir a la sala del usuario
-        console.log('👮 Admin escribiendo para usuario:', userId, 'en canal:', channel);
-        console.log('📡 Emitiendo admin-typing a sala:', roomName);
-        console.log('📊 Clientes en sala:', io.sockets.adapter.rooms.get(roomName)?.size || 0);
+        console.log('Admin escribiendo para usuario:', userId, 'en canal:', channel);
+        console.log('Emitiendo admin-typing a sala:', roomName);
+        console.log('Clientes en sala:', io.sockets.adapter.rooms.get(roomName)?.size || 0);
         
         // Emitir a la sala del usuario
         io.to(roomName).emit('admin-typing', {
@@ -277,7 +263,7 @@ const initializeSocket = (io) => {
           channel
         });
         
-        console.log('✅ Evento admin-typing emitido a sala:', roomName);
+        console.log('Evento admin-typing emitido a sala:', roomName);
       } else {
         // Usuario escribiendo -> emitir a todos los admins
         console.log('👤 Usuario escribiendo, emitiendo a todos los admins');
@@ -286,7 +272,7 @@ const initializeSocket = (io) => {
           channel,
           userName: socket.user.nombre
         });
-        console.log('✅ Evento user-typing emitido a todos');
+        console.log('Evento user-typing emitido a todos');
       }
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     });
@@ -294,19 +280,17 @@ const initializeSocket = (io) => {
     // Usuario dejó de escribir
     socket.on('stop-typing', ({ userId, channel }) => {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🛑 Stop typing event recibido:', { userId, channel, from: socket.user.nombre, rol: socket.user.rol });
+      console.log('Stop typing event recibido:', { userId, channel, from: socket.user.nombre, rol: socket.user.rol });
       
       const roomName = `${userId}:${channel}`;
       
       if (socket.user.rol === 'administrador') {
-        // 🔥 Admin dejó de escribir -> emitir a la sala del usuario
-        console.log('👮 Admin dejó de escribir, emitiendo a sala:', roomName);
         
         io.to(roomName).emit('admin-stop-typing', {
           channel
         });
         
-        console.log('✅ Evento admin-stop-typing emitido a sala:', roomName);
+        console.log('Evento admin-stop-typing emitido a sala:', roomName);
       } else {
         // Usuario dejó de escribir -> emitir a todos los admins
         console.log('👤 Usuario dejó de escribir, emitiendo a todos los admins');
@@ -314,16 +298,15 @@ const initializeSocket = (io) => {
           userId,
           channel
         });
-        console.log('✅ Evento user-stop-typing emitido a todos');
+        console.log('Evento user-stop-typing emitido a todos');
       }
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     });
 
     socket.on('disconnect', () => {
-      console.log(`👋 Usuario desconectado: ${socket.user.nombre} (${socket.id})`);
+      console.log(`Usuario desconectado: ${socket.user.nombre} (${socket.id})`);
     });
 
-    // 🔍 DEBUG: Listar todos los eventos que el socket puede recibir
     const originalOnevent = socket.onevent;
     socket.onevent = function (packet) {
       console.log('📨 Evento recibido:', packet.data[0], 'de:', socket.user.nombre);
@@ -333,10 +316,10 @@ const initializeSocket = (io) => {
 
   // Debug para conexiones fallidas
   io.engine.on('connection_error', (err) => {
-    console.log('💥 Error de conexión del motor:', err.req);
-    console.log('💥 Código de error:', err.code);
-    console.log('💥 Mensaje:', err.message);
-    console.log('💥 Contexto:', err.context);
+    console.log('Error de conexión del motor:', err.req);
+    console.log('Código de error:', err.code);
+    console.log('Mensaje:', err.message);
+    console.log('Contexto:', err.context);
   });
 };
 
