@@ -59,7 +59,7 @@
       </div>
     </nav>
 
-    <!-- Chat Container - 🔥 Ajustado igual que AdminChatView -->
+    <!-- Chat Container - Ajustado igual que AdminChatView -->
     <div class="flex-1 flex overflow-hidden max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
       <!-- Sidebar -->
       <div class="w-80 bg-white border-r border-gray-200 flex flex-col">
@@ -152,7 +152,7 @@
         </div>
       </div>
 
-      <!-- Main Chat Area - 🔥 Estructura igual que AdminChatView -->
+      <!-- Main Chat Area - Estructura igual que AdminChatView -->
       <div class="flex-1 flex flex-col min-h-0 min-w-0">
         <!-- Chat Header -->
         <div v-if="chatStore.currentChat" class="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
