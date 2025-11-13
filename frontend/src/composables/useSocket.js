@@ -12,11 +12,11 @@ export function useSocket() {
     console.log('🔌 Intentando conectar socket...');
     
     if (socket.value?.connected) {
-      console.log('✅ Socket ya conectado');
+      console.log('Socket ya conectado');
       return socket.value;
     }
 
-    // 🔍 VERIFICAR MÚLTIPLES FUENTES DE TOKEN
+    // VERIFICAR MÚLTIPLES FUENTES DE TOKEN
     let token = authStore.token;
     
     if (!token) {
@@ -25,22 +25,20 @@ export function useSocket() {
     }
 
     if (!token) {
-      console.error('❌ No hay token disponible en ningún lugar');
+      console.error('No hay token disponible en ningún lugar');
       return null;
     }
 
-    console.log('🔑 Token encontrado para socket:', token.substring(0, 20) + '...');
+    console.log('Token encontrado para socket:', token.substring(0, 20) + '...');
     
-    // 🔥 SOCKET URL - Remover /api SOLO para socket, HTTP APIs lo necesitan
+
     let socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
     
     // Si la URL tiene /api, removerlo para socket
     if (socketUrl.endsWith('/api')) {
       socketUrl = socketUrl.replace('/api', '');
     }
-    
-    console.log('🌍 Socket conectando a:', socketUrl);
-    console.log('🌍 HTTP APIs seguirán usando:', import.meta.env.VITE_API_URL);
+
 
     socket.value = io(socketUrl, {
       auth: { 
@@ -55,21 +53,21 @@ export function useSocket() {
 
     socket.value.on('connect', () => {
       connected.value = true;
-      console.log('🎉 *** SOCKET CONECTADO EXITOSAMENTE ***');
-      console.log('🆔 Socket ID:', socket.value.id);
+      console.log('*** SOCKET CONECTADO EXITOSAMENTE ***');
+      console.log('Socket ID:', socket.value.id);
     });
 
     socket.value.on('disconnect', (reason) => {
       connected.value = false;
-      console.log('❌ Socket desconectado. Razón:', reason);
+      console.log('Socket desconectado. Razón:', reason);
     });
 
     socket.value.on('connect_error', (error) => {
-      console.error('💥 ERROR DE CONEXIÓN SOCKET:');
-      console.error('📋 Mensaje:', error.message);
-      console.error('📋 Tipo:', error.type);
-      console.error('📋 Descripción:', error.description);
-      console.error('📋 Detalles completos:', error);
+      console.error('ERROR DE CONEXIÓN SOCKET:');
+      console.error('Mensaje:', error.message);
+      console.error('Tipo:', error.type);
+      console.error('Descripción:', error.description);
+      console.error('Detalles completos:', error);
     });
 
     return socket.value;
@@ -85,29 +83,28 @@ export function useSocket() {
   };
 
   const emit = (event, data) => {
-    console.log('🔍 Intentando emitir evento:', event);
-    console.log('📋 Socket existe:', !!socket.value);
-    console.log('📋 Socket conectado:', socket.value?.connected || false);
+    console.log('Intentando emitir evento:', event);
+    console.log('Socket existe:', !!socket.value);
+    console.log('Socket conectado:', socket.value?.connected || false);
     
     if (socket.value?.connected) {
-      console.log('📤 Emitiendo evento:', event, 'Datos:', data);
+      console.log('Emitiendo evento:', event, 'Datos:', data);
       socket.value.emit(event, data);
     } else {
-      console.error('💥 SOCKET NO CONECTADO - No se puede emitir');
-      console.error('📋 Estado del socket:', {
+      console.error('SOCKET NO CONECTADO - No se puede emitir');
+      console.error('Estado del socket:', {
         exists: !!socket.value,
         connected: socket.value?.connected || false,
         id: socket.value?.id || 'NO ID'
       });
       
       // Intentar reconectar
-      console.log('🔄 Intentando reconectar...');
       connect();
       
       // Intentar emitir después de reconectar
       setTimeout(() => {
         if (socket.value?.connected) {
-          console.log('📤 Reintentando emisión después de reconexión...');
+          console.log('Reintentando emisión después de reconexión...');
           socket.value.emit(event, data);
         }
       }, 1000);
@@ -117,9 +114,9 @@ export function useSocket() {
   const on = (event, callback) => {
     if (socket.value) {
       socket.value.on(event, callback);
-      console.log('👂 Listener agregado para evento:', event);
+      console.log('Listener agregado para evento:', event);
     } else {
-      console.warn('⚠️ Socket no existe, no se puede agregar listener para:', event);
+      console.warn('Socket no existe, no se puede agregar listener para:', event);
     }
   };
 
