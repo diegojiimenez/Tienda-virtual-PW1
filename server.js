@@ -98,6 +98,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('='.repeat(60));
   console.log(`Servidor corriendo en puerto ${PORT}`);
   console.log(`Modo: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`✓ MongoDB: ${require('mongoose').connection.readyState === 1 ? 'conectado' : 'desconectado'}`);
   console.log(`API: /api`);
   console.log(`Socket.IO: habilitado`);
   console.log(`JWT: activado`);
