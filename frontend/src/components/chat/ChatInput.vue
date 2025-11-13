@@ -1,6 +1,6 @@
 <template>
   <div v-if="chatStore.currentChat" class="bg-white border-t border-gray-200 p-6 flex-shrink-0">
-    <!-- 🔥 INDICADOR de typing con altura fija -->
+    <!--  INDICADOR de typing con altura fija -->
     <div class="mb-3" style="min-height: 24px;">
       <div v-if="isAdminTyping" class="flex items-center space-x-2 text-gray-500 text-sm">
         <div class="flex space-x-1">
@@ -50,7 +50,6 @@ const message = ref('');
 const sending = ref(false);
 const typingTimeout = ref(null);
 
-// 🔥 FIX: Usar el store para obtener el estado de typing del admin
 const isAdminTyping = computed(() => {
   if (!chatStore.currentChannel) return false;
   
@@ -96,14 +95,14 @@ const sendMessage = async () => {
   }
 };
 
-// 🔥 FIX: Listeners para typing de admin con timeout
+
 const handleAdminTyping = (data) => {
-  console.log('👮 Admin typing recibido:', data);
+  console.log('Admin typing recibido:', data);
   if (data.channel === chatStore.currentChannel) {
     adminTyping.value = true;
-    console.log('✅ Mostrando typing de admin');
+    console.log('Mostrando typing de admin');
     
-    // 🔥 Auto-hide después de 3 segundos por si no llega stop-typing
+
     if (adminTypingTimeout.value) {
       clearTimeout(adminTypingTimeout.value);
     }
@@ -115,7 +114,7 @@ const handleAdminTyping = (data) => {
 };
 
 const handleAdminStopTyping = (data) => {
-  console.log('🛑 Admin stop typing recibido:', data);
+  console.log('Admin stop typing recibido:', data);
   if (data.channel === chatStore.currentChannel) {
     adminTyping.value = false;
     
@@ -126,13 +125,13 @@ const handleAdminStopTyping = (data) => {
 };
 
 onMounted(() => {
-  console.log('📡 Registrando listeners de typing en ChatInput');
+  console.log('Registrando listeners de typing en ChatInput');
   on('admin-typing', handleAdminTyping);
   on('admin-stop-typing', handleAdminStopTyping);
 });
 
 onUnmounted(() => {
-  console.log('🔌 Desregistrando listeners de typing en ChatInput');
+  console.log('Desregistrando listeners de typing en ChatInput');
   off('admin-typing', handleAdminTyping);
   off('admin-stop-typing', handleAdminStopTyping);
   
