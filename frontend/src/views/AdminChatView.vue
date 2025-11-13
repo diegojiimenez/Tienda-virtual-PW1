@@ -291,21 +291,21 @@ const filteredChats = computed(() => {
 });
 
 // Initialize socket
-console.log('🔴 ADMIN: Inicializando socket...');
+console.log('ADMIN: Inicializando socket...');
 connect();
 
 // Socket listeners con DEBUG COMPLETO
 on('connect', () => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔴 ADMIN: Socket conectado exitosamente');
+  console.log('ADMIN: Socket conectado exitosamente');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 });
 
 on('new-message', (data) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔴 ADMIN: Evento new-message recibido');
-  console.log('📋 Data:', JSON.stringify(data, null, 2));
-  console.log('📊 Estado actual:');
+  console.log('ADMIN: Evento new-message recibido');
+  console.log('Data:', JSON.stringify(data, null, 2));
+  console.log('Estado actual:');
   console.log('   - Chat seleccionado:', selectedChat.value?._id);
   console.log('   - Total chats:', allChats.value.length);
   updateChatWithMessage(data);
@@ -314,9 +314,9 @@ on('new-message', (data) => {
 
 on('new-user-message', (data) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔴 ADMIN: Evento new-user-message recibido');
-  console.log('📋 Data completa:', JSON.stringify(data, null, 2));
-  console.log('📊 Estado actual:');
+  console.log('ADMIN: Evento new-user-message recibido');
+  console.log('Data completa:', JSON.stringify(data, null, 2));
+  console.log('Estado actual:');
   console.log('   - Chat seleccionado ID:', selectedChat.value?._id);
   console.log('   - Chat del mensaje ID:', data.chatId);
   console.log('   - ¿Es el mismo chat?:', selectedChat.value?._id === data.chatId);
@@ -325,31 +325,31 @@ on('new-user-message', (data) => {
   
   updateChatWithMessage(data);
   
-  console.log('📊 Estado después de actualizar:');
+  console.log('Estado después de actualizar:');
   console.log('   - Mensajes en chat actual:', selectedChat.value?.messages?.length || 0);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 });
 
 on('new-admin-message', (data) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔴 ADMIN: Evento new-admin-message recibido (otro admin)');
-  console.log('📋 Data:', JSON.stringify(data, null, 2));
+  console.log('ADMIN: Evento new-admin-message recibido (otro admin)');
+  console.log('Data:', JSON.stringify(data, null, 2));
   updateChatWithMessage(data);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 });
 
 on('admin-message-sent', (data) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔴 ADMIN: Evento admin-message-sent recibido');
-  console.log('📋 Data:', JSON.stringify(data, null, 2));
+  console.log('ADMIN: Evento admin-message-sent recibido');
+  console.log('Data:', JSON.stringify(data, null, 2));
   updateChatWithMessage(data);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 });
 
 on('admin-message-confirmed', (data) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔴 ADMIN: Evento admin-message-confirmed recibido');
-  console.log('📋 Data:', JSON.stringify(data, null, 2));
+  console.log('ADMIN: Evento admin-message-confirmed recibido');
+  console.log('Data:', JSON.stringify(data, null, 2));
   
   if (selectedChat.value && selectedChat.value._id === data.chatId) {
     const exists = selectedChat.value.messages.find(msg => 
@@ -359,11 +359,11 @@ on('admin-message-confirmed', (data) => {
     );
     
     if (!exists) {
-      console.log('✅ Agregando mensaje confirmado al chat');
+      console.log('Agregando mensaje confirmado al chat');
       selectedChat.value.messages.push(data.message);
       scrollToBottom();
     } else {
-      console.log('⚠️ Mensaje ya existe, no agregado');
+      console.log('Mensaje ya existe, no agregado');
     }
   }
   
@@ -374,7 +374,7 @@ on('admin-message-confirmed', (data) => {
 // Escuchar typing de usuarios
 on('user-typing', (data) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔴 ADMIN: Usuario escribiendo:', data);
+  console.log('ADMIN: Usuario escribiendo:', data);
   console.log('   - Usuario:', data.userName);
   console.log('   - Canal:', data.channel);
   console.log('   - Chat seleccionado:', selectedChat.value?.channel);
@@ -382,7 +382,7 @@ on('user-typing', (data) => {
   if (selectedChat.value && 
       selectedChat.value.channel === data.channel && 
       selectedChat.value.user._id === data.userId) {
-    console.log('✅ Mostrando indicador de typing');
+    console.log('Mostrando indicador de typing');
     isTyping.value = true;
     
     if (typingTimeout.value) {
@@ -390,17 +390,17 @@ on('user-typing', (data) => {
     }
     
     typingTimeout.value = setTimeout(() => {
-      console.log('⏰ Timeout: Ocultando typing');
+      console.log('Timeout: Ocultando typing');
       isTyping.value = false;
     }, 3000);
   } else {
-    console.log('⚠️ No mostrar typing - no es el chat actual');
+    console.log('No mostrar typing - no es el chat actual');
   }
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 });
 
 on('user-stop-typing', (data) => {
-  console.log('🔴 ADMIN: Usuario dejó de escribir:', data);
+  console.log('ADMIN: Usuario dejó de escribir:', data);
   
   if (selectedChat.value && 
       selectedChat.value.channel === data.channel && 
@@ -414,12 +414,12 @@ on('user-stop-typing', (data) => {
 });
 
 on('unread-updated', (data) => {
-  console.log('📊 Actualización de mensajes no leídos:', data);
+  console.log('Actualización de mensajes no leídos:', data);
   
   const chatIndex = allChats.value.findIndex(chat => chat._id === data.chatId);
   if (chatIndex !== -1) {
     allChats.value[chatIndex].unreadCount = data.unreadCount;
-    console.log('✅ Unread actualizado para chat:', data.chatId);
+    console.log('Unread actualizado para chat:', data.chatId);
   }
 });
 
@@ -431,7 +431,7 @@ const updateChatWithMessage = (data) => {
   
   // Actualizar chat actual si coincide
   if (selectedChat.value && selectedChat.value._id === data.chatId) {
-    console.log('✅ Es el chat seleccionado, actualizando...');
+    console.log('Es el chat seleccionado, actualizando...');
     console.log('   - Mensajes antes:', selectedChat.value.messages.length);
     
     const exists = selectedChat.value.messages.find(msg => 
@@ -441,7 +441,7 @@ const updateChatWithMessage = (data) => {
     );
     
     if (!exists) {
-      console.log('✅ Mensaje nuevo, agregando...');
+      console.log('Mensaje nuevo, agregando...');
       selectedChat.value.messages.push(data.message);
       console.log('   - Mensajes después:', selectedChat.value.messages.length);
       scrollToBottom();
@@ -449,10 +449,10 @@ const updateChatWithMessage = (data) => {
       // Marcar como leído automáticamente
       markChatAsRead(data.chatId);
     } else {
-      console.log('⚠️ Mensaje duplicado detectado');
+      console.log('Mensaje duplicado detectado');
     }
   } else {
-    console.log('⚠️ NO es el chat seleccionado');
+    console.log('NO es el chat seleccionado');
   }
   
   // Actualizar la lista de chats
@@ -461,12 +461,12 @@ const updateChatWithMessage = (data) => {
 };
 
 const updateChatInList = (data) => {
-  console.log('🔧 updateChatInList - INICIO');
+  console.log('updateChatInList - INICIO');
   const chatIndex = allChats.value.findIndex(chat => chat._id === data.chatId);
   console.log('   - Índice del chat en lista:', chatIndex);
   
   if (chatIndex !== -1) {
-    console.log('✅ Chat encontrado en lista, actualizando...');
+    console.log('Chat encontrado en lista, actualizando...');
     
     // Actualizar último mensaje
     allChats.value[chatIndex].lastMessage = data.message.createdAt;
@@ -477,14 +477,14 @@ const updateChatInList = (data) => {
         selectedChat.value._id !== data.chatId) {
       allChats.value[chatIndex].unreadCount = allChats.value[chatIndex].unreadCount || { admin: 0, user: 0 };
       allChats.value[chatIndex].unreadCount.admin += 1;
-      console.log('📊 Incrementado unread a:', allChats.value[chatIndex].unreadCount.admin);
+      console.log('Incrementado unread a:', allChats.value[chatIndex].unreadCount.admin);
     }
     
     // Si estoy viendo este chat, resetear unread
     if (selectedChat.value && selectedChat.value._id === data.chatId) {
       allChats.value[chatIndex].unreadCount = allChats.value[chatIndex].unreadCount || { admin: 0, user: 0 };
       allChats.value[chatIndex].unreadCount.admin = 0;
-      console.log('📊 Reseteado unread a 0');
+      console.log('Reseteado unread a 0');
     }
     
     // Agregar mensaje a la lista si no existe
@@ -499,11 +499,11 @@ const updateChatInList = (data) => {
     );
     
     if (!messageExists) {
-      console.log('✅ Agregando mensaje a lista de chat');
+      console.log('Agregando mensaje a lista de chat');
       allChats.value[chatIndex].messages.push(data.message);
     }
   } else {
-    console.log('❌ Chat no encontrado en lista, recargando...');
+    console.log('Chat no encontrado en lista, recargando...');
     filterChats();
   }
   console.log('🔧 updateChatInList - FIN');
@@ -517,10 +517,10 @@ const markChatAsRead = async (chatId) => {
     if (chatIndex !== -1) {
       allChats.value[chatIndex].unreadCount = allChats.value[chatIndex].unreadCount || { admin: 0, user: 0 };
       allChats.value[chatIndex].unreadCount.admin = 0;
-      console.log('✅ Chat marcado como leído localmente');
+      console.log('Chat marcado como leído localmente');
     }
   } catch (error) {
-    console.error('❌ Error marking chat as read:', error);
+    console.error('Error marking chat as read:', error);
   }
 };
 
@@ -534,7 +534,7 @@ const sendAdminMessage = async () => {
   adminMessage.value = '';
 
   try {
-    console.log('🎯 Enviando mensaje de admin...');
+    console.log('Enviando mensaje de admin...');
     
     emit('send-admin-message', {
       userId: selectedChat.value.user._id,
@@ -601,7 +601,7 @@ const filterChats = async () => {
 
 const selectChat = async (chat) => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('🔴 ADMIN: Seleccionando chat:', chat._id);
+  console.log('ADMIN: Seleccionando chat:', chat._id);
   console.log('   - Usuario:', chat.user.nombre);
   console.log('   - Canal:', chat.channel);
   
@@ -613,7 +613,7 @@ const selectChat = async (chat) => {
     userId: chat.user._id,
     channel: chat.channel
   });
-  console.log('✅ Unido al canal:', `${chat.user._id}:${chat.channel}`);
+  console.log('Unido al canal:', `${chat.user._id}:${chat.channel}`);
 
   await markChatAsRead(chat._id);
 
@@ -657,10 +657,10 @@ const logout = () => {
 
 // Lifecycle
 onMounted(async () => {
-  console.log('🔴 ADMIN: Componente montado');
+  console.log('ADMIN: Componente montado');
   document.addEventListener('click', handleClickOutside);
   await filterChats();
-  console.log('🔴 ADMIN: Chats cargados:', allChats.value.length);
+  console.log('ADMIN: Chats cargados:', allChats.value.length);
 });
 
 onBeforeUnmount(() => {
