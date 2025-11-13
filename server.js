@@ -1,6 +1,5 @@
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
+require('dotenv').config();
+
 
 const express = require('express');
 const http = require('http');
@@ -56,12 +55,6 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/chats', chatRoutes);
 
 app.get('/api', (req, res) => {
   res.json({
@@ -76,6 +69,10 @@ app.get('/api', (req, res) => {
     }
   });
 });
+
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/chats', chatRoutes);
 
 const frontendDist = path.join(__dirname, 'frontend', 'dist');
 app.use(express.static(frontendDist));
