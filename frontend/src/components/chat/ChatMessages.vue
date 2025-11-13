@@ -105,7 +105,7 @@ const channelDescriptions = {
 
 const messages = computed(() => chatStore.currentChat?.messages || []);
 
-// 🔥 ARREGLAR: Solo mostrar typing de OTROS usuarios, no el mío
+
 const isTyping = computed(() => {
   if (!chatStore.currentChannel) return false;
   const myId = authStore.user?._id || authStore.user?.id;
