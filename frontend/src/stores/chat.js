@@ -68,21 +68,19 @@ export const useChatStore = defineStore('chat', {
         this.handleNewUserMessage(data);
       });
   
-      // 🔥 Admin typing - MEJORADO
       on('admin-typing', (data) => {
-        console.log('👮 Admin está escribiendo:', data);
+        console.log('Admin está escribiendo:', data);
         if (data.channel === this.currentChannel) {
           this.typingUsers.set(`admin:${data.channel}`, data.adminName);
-          console.log('✅ Typing activado para admin');
+          console.log('Typing activado para admin');
         }
       });
 
-      // 🔥 FIX: Admin stop typing - AGREGAR ESTE LISTENER
       on('admin-stop-typing', (data) => {
-        console.log('🛑 Admin dejó de escribir:', data);
+        console.log('Admin dejó de escribir:', data);
         if (data.channel === this.currentChannel) {
           this.typingUsers.delete(`admin:${data.channel}`);
-          console.log('✅ Typing desactivado para admin');
+          console.log('Typing desactivado para admin');
         }
       });
   
@@ -167,7 +165,6 @@ export const useChatStore = defineStore('chat', {
         
         console.log('🔵 Enviando por socket:', { userId, channel: this.currentChannel, content });
         
-        // 🔥 Crear ID temporal único
         const tempId = `temp_${userId}_${Date.now()}_${Math.random()}`;
         
         // Enviar mensaje por socket
@@ -177,7 +174,6 @@ export const useChatStore = defineStore('chat', {
           content: content.trim()
         });
     
-        // 🔥 Agregar mensaje localmente para feedback inmediato
         if (this.currentChat) {
           const newMessage = {
             _id: tempId, // ID temporal para detectar duplicados
@@ -188,7 +184,7 @@ export const useChatStore = defineStore('chat', {
           };
           
           this.currentChat.messages.push(newMessage);
-          console.log('✅ Mensaje agregado localmente (temporal)');
+          console.log('Mensaje agregado localmente (temporal)');
         }
     
       } catch (error) {
@@ -211,21 +207,20 @@ export const useChatStore = defineStore('chat', {
           this.chats[chatIndex].unreadCount.user = 0;
         }
         
-        console.log('✅ Marcado como leído correctamente');
+        console.log('Marcado como leído correctamente');
       } catch (error) {
-        console.error('❌ Error marking as read:', error);
+        console.error('Error marking as read:', error);
       }
     },
 
     handleNewMessage(data) {
-      console.log('🔔 Procesando nuevo mensaje:', data);
+      console.log('Procesando nuevo mensaje:', data);
       
       const authStore = useAuthStore();
       const myUserId = authStore.user._id || authStore.user.id;
       
       // Actualizar chat actual si coincide
       if (this.currentChat && this.currentChat._id === data.chatId) {
-        // 🔥 BUSCAR mensaje temporal o duplicado
         const tempMsgIndex = this.currentChat.messages.findIndex(msg => {
           // Si es mensaje temporal mío con mismo contenido
           if (msg._id?.startsWith('temp_') && 
@@ -251,21 +246,20 @@ export const useChatStore = defineStore('chat', {
         });
         
         if (tempMsgIndex !== -1) {
-          // 🔥 REEMPLAZAR mensaje temporal con el real
           console.log('🔄 Reemplazando mensaje temporal con mensaje real');
           this.currentChat.messages[tempMsgIndex] = {
             ...data.message,
             _id: data.message._id || this.currentChat.messages[tempMsgIndex]._id
           };
         } else {
-          // 🔥 AGREGAR nuevo mensaje
+
           const messageToAdd = {
             ...data.message,
             _id: data.message._id || `msg_${Date.now()}_${Math.random()}`
           };
           
           this.currentChat.messages.push(messageToAdd);
-          console.log('✅ Mensaje agregado al chat actual');
+          console.log('Mensaje agregado al chat actual');
         }
         
         if (this.currentChannel === data.channel) {
@@ -282,7 +276,7 @@ export const useChatStore = defineStore('chat', {
           this.chats[chatIndex].messages = [];
         }
         
-        // 🔥 Buscar y reemplazar/agregar en la lista
+        // Buscar y reemplazar/agregar en la lista
         const msgIndex = this.chats[chatIndex].messages.findIndex(msg => 
           (msg._id?.startsWith('temp_') && msg.content === data.message.content) ||
           (msg._id && data.message._id && msg._id === data.message._id) ||
@@ -309,13 +303,13 @@ export const useChatStore = defineStore('chat', {
           this.chats[chatIndex].unreadCount.user = 0;
         }
       } else {
-        console.log('🆕 Chat no encontrado, recargando lista...');
+        console.log('Chat no encontrado, recargando lista...');
         this.fetchUserChats();
       }
     },
 
     handleNewUserMessage(data) {
-      console.log('👤 Nuevo mensaje de usuario recibido:', data);
+      console.log('Nuevo mensaje de usuario recibido:', data);
       
       // Buscar el chat en la lista
       const chatIndex = this.chats.findIndex(chat => chat._id === data.chatId);
@@ -346,7 +340,7 @@ export const useChatStore = defineStore('chat', {
         }
       } else if (data.chat) {
         // Agregar nuevo chat a la lista
-        console.log('🆕 Agregando nuevo chat a la lista');
+        console.log('Agregando nuevo chat a la lista');
         this.chats.unshift(data.chat);
       } else {
         // Refrescar lista completa
