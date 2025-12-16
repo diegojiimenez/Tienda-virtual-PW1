@@ -23,6 +23,130 @@ El proyecto sigue una arquitectura Cliente-Servidor con las siguientes caracter�
 - **Comunicación en Tiempo Real**: WebSockets mediante Socket.IO para el sistema de chat
 - **Base de Datos**: MongoDB para almacenamiento persistente
 
+### Diagrama de Arquitectura del Backend
+
+![Backend Architecture](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/tu-usuario/tienda-ropa-PW1/main/docs/architecture.puml)
+
+<details>
+<summary>📊 Ver diagrama detallado de la arquitectura</summary>
+
+```plantuml
+@startuml Backend Architecture
+
+skinparam componentStyle rectangle
+skinparam linetype polyline
+skinparam nodesep 80
+skinparam ranksep 100
+
+' Client Layer
+package "Client Layer" #LightBlue {
+  component [Browser/Frontend] as Client
+}
+
+' API Layer
+package "API Layer" #LightGreen {
+  component [Express Server\nserver.js] as Server
+  component [Socket.IO\nconfig/socket.js] as SocketIO
+}
+
+' Middleware Layer
+package "Middleware Layer" #LightYellow {
+  component [JWT Auth\nmiddleware/auth.js] as Auth
+  component [Error Handler\nmiddleware/errorHandler.js] as ErrorHandler
+}
+
+' Routes Layer
+package "Routes Layer" #LightCoral {
+  component [Auth Routes\nroutes/authRoutes.js] as AuthRoutes
+  component [Product Routes\nroutes/productRoutes.js] as ProductRoutes
+  component [Chat Routes\nroutes/chatRoutes.js] as ChatRoutes
+}
+
+' Controllers Layer
+package "Controllers Layer" #Lavender {
+  component [Auth Controller\ncontrollers/authController.js] as AuthController
+  component [Product Controller\ncontrollers/productController.js] as ProductController
+  component [Chat Controller\ncontrollers/chatController.js] as ChatController
+  component [New Chat Controller\ncontrollers/newChatController.js] as NewChatController
+}
+
+' Models Layer
+package "Models Layer (Mongoose ODM)" #LightCyan {
+  component [User Model\nmodels/User.js] as UserModel
+  component [Product Model\nmodels/Product.js] as ProductModel
+  component [Chat Model\nmodels/Chat.js] as ChatModel
+  component [Message Model\nmodels/Message.js] as MessageModel
+}
+
+' Database Layer
+package "Database Layer" #WhiteSmoke {
+  database "MongoDB\nconfig/database.js" as MongoDB
+}
+
+' === CONEXIONES VERTICALES ===
+Client -down-> Server : HTTP/HTTPS
+Client -down-> SocketIO : WebSocket
+
+Server -down-> AuthRoutes
+Server -down-> ProductRoutes
+Server -down-> ChatRoutes
+
+AuthRoutes -down-> AuthController
+ProductRoutes -down-> ProductController
+ChatRoutes -down-> ChatController
+ChatRoutes -down-> NewChatController
+
+AuthController -down-> UserModel
+ProductController -down-> ProductModel
+ChatController -down-> ChatModel
+ChatController -down-> MessageModel
+NewChatController -down-> ChatModel
+
+UserModel -down-> MongoDB : Mongoose Schema
+ProductModel -down-> MongoDB : Mongoose Schema
+ChatModel -down-> MongoDB : Mongoose Schema
+MessageModel -down-> MongoDB : Mongoose Schema
+
+' === CONEXIONES HORIZONTALES ===
+Auth .right.> AuthRoutes : Validates
+Auth .right.> ProductRoutes : Validates
+Auth .right.> ChatRoutes : Validates
+Auth .right.> SocketIO : Validates Token
+
+ErrorHandler .left.> Server : Handles Errors
+SocketIO .down.> ChatController : Real-time Events
+
+note top of Auth
+  <b>JWT Middleware</b>
+  • Verifica token
+  • Decodifica usuario
+  • Adjunta req.user
+  • Permite/Deniega acceso
+end note
+
+note top of SocketIO
+  <b>WebSocket Features</b>
+  • Chat en tiempo real
+  • Broadcasting de mensajes
+  • Presencia de usuarios
+  • Gestión de canales
+end note
+
+note bottom of MongoDB
+  <b>Colecciones</b>
+  • users
+  • products
+  • chats
+  • messages
+end note
+
+@enduml
+```
+
+</details>
+
+### Arquitectura Simplificada
+
 ```
 ┌─────────────┐         HTTP/WebSocket        ┌─────────────┐
 │   Frontend  │ ◄──────────────────────────► │   Backend   │
