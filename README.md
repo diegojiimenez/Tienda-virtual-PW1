@@ -23,10 +23,10 @@ El proyecto sigue una arquitectura Cliente-Servidor con las siguientes caracter�
 - **Comunicación en Tiempo Real**: WebSockets mediante Socket.IO para el sistema de chat
 - **Base de Datos**: MongoDB para almacenamiento persistente
 
-```
+
 ### Diagrama Detallado del Backend
 
-![Arquitectura del Backend](./docs/DiagramArquitectura.png)
+![Arquitectura del Backend](./docs/backend-architecture.png)
 
 ## 🛠️ Tecnologías Utilizadas
 
