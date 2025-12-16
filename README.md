@@ -26,7 +26,7 @@ El proyecto sigue una arquitectura Cliente-Servidor con las siguientes caracter�
 
 ### Diagrama Detallado del Backend
 
-![Arquitectura del Backend](./docs/backend-architecture.png)
+![Arquitectura del Backend](./docs/DiagramArquitectura.png)
 
 ## 🛠️ Tecnologías Utilizadas
 
