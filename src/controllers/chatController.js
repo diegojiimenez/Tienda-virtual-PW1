@@ -5,14 +5,35 @@ const Chat = require('../models/Chat');
 exports.getUserChats = async (req, res) => {
   try {
     const userId = req.user._id;
-    
-    const chats = await Chat.find({ user: userId })
-      .populate('user', 'nombre apellido email')
-      .sort({ lastMessage: -1 });
+    const channels = ['orders', 'customer-support', 'admin', 'shipping'];
+    const chats = [];
+
+    // Crear o obtener cada canal
+    for (const channel of channels) {
+      let chat = await Chat.findOne({ user: userId, channel })
+        .populate('user', 'nombre apellido email');
+
+      if (!chat) {
+        // Crear el chat si no existe
+        chat = await Chat.create({
+          user: userId,
+          channel,
+          channelName: getChannelName(channel),
+          messages: [],
+          unreadCount: { user: 0, admin: 0 },
+          status: 'active'
+        });
+
+        chat = await Chat.findById(chat._id)
+          .populate('user', 'nombre apellido email');
+      }
+
+      chats.push(chat);
+    }
 
     res.json({
       success: true,
-      data: chats
+      data: chats.sort((a, b) => new Date(b.lastMessage) - new Date(a.lastMessage))
     });
   } catch (error) {
     console.error('Error getting user chats:', error);
