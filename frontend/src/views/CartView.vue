@@ -63,8 +63,13 @@
         <p class="text-gray-600 mt-2">{{ cartStore.totalItems }} items in your cart</p>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="cartStore.loading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+
       <!-- Empty State -->
-      <div v-if="cartStore.isEmpty" class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <div v-else-if="cartStore.isEmpty" class="bg-white rounded-lg shadow-sm p-12 text-center">
         <ShoppingCartIcon class="h-24 w-24 text-gray-300 mx-auto mb-6" />
         <h2 class="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
         <p class="text-gray-600 mb-8">Add some amazing products to get started!</p>
@@ -79,7 +84,7 @@
         <div class="lg:col-span-2 space-y-4">
           <div
             v-for="(item, index) in cartStore.items"
-            :key="`${item.product._id}-${item.size}-${item.color}-${index}`"
+            :key="`${item.id}-${index}`"
             class="bg-white rounded-lg shadow-sm p-6"
           >
             <div class="flex gap-6">
@@ -127,7 +132,7 @@
                   <div class="flex items-center gap-3">
                     <button
                       @click="decreaseQuantity(index, item.quantity)"
-                      :disabled="item.quantity <= 1"
+                      :disabled="item.quantity <= 1 || updating"
                       class="w-8 h-8 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <MinusIcon class="h-4 w-4 text-gray-700" />
@@ -139,7 +144,7 @@
                     
                     <button
                       @click="increaseQuantity(index, item.quantity, item.product.stock)"
-                      :disabled="item.quantity >= item.product.stock"
+                      :disabled="item.quantity >= item.product.stock || updating"
                       class="w-8 h-8 flex items-center justify-center border-2 border-gray-300 rounded-lg hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <PlusIcon class="h-4 w-4 text-gray-700" />
@@ -247,6 +252,7 @@ const authStore = useAuthStore();
 
 const showDropdown = ref(false);
 const dropdown = ref(null);
+const updating = ref(false);
 
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
@@ -266,15 +272,29 @@ const goBack = () => {
   router.push('/shop');
 };
 
-const increaseQuantity = (index, currentQuantity, stock) => {
-  if (currentQuantity < stock) {
-    cartStore.updateQuantity(index, currentQuantity + 1);
+const increaseQuantity = async (index, currentQuantity, stock) => {
+  if (currentQuantity < stock && !updating.value) {
+    updating.value = true;
+    try {
+      await cartStore.updateQuantity(index, currentQuantity + 1);
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    } finally {
+      updating.value = false;
+    }
   }
 };
 
-const decreaseQuantity = (index, currentQuantity) => {
-  if (currentQuantity > 1) {
-    cartStore.updateQuantity(index, currentQuantity - 1);
+const decreaseQuantity = async (index, currentQuantity) => {
+  if (currentQuantity > 1 && !updating.value) {
+    updating.value = true;
+    try {
+      await cartStore.updateQuantity(index, currentQuantity - 1);
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    } finally {
+      updating.value = false;
+    }
   }
 };
 
@@ -290,7 +310,7 @@ const removeItem = async (index) => {
       type: 'danger'
     });
     
-    cartStore.removeItem(index);
+    await cartStore.removeItem(index);
   } catch {
     // Usuario canceló
   }
@@ -311,8 +331,9 @@ const handleClickOutside = (event) => {
   }
 };
 
-onMounted(() => {
-  cartStore.loadCartFromStorage();
+onMounted(async () => {
+  // Cargar carrito desde BD al montar el componente
+  await cartStore.loadCartFromDB();
   document.addEventListener('click', handleClickOutside);
 });
 

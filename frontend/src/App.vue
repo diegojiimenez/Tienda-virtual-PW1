@@ -1,16 +1,29 @@
 <script setup>
 import { RouterView } from 'vue-router'
 import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import CartDrawer from '@/components/cart/CartDrawer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { useConfirm } from '@/composables/useConfirm'
 
+const authStore = useAuthStore()
 const cartStore = useCartStore()
 const confirmDialog = useConfirm()
 
-onMounted(() => {
-  cartStore.loadCartFromStorage()
+onMounted(async () => {
+  // Primero inicializar autenticación
+  await authStore.initializeAuth()
+  
+  // Si el usuario está autenticado, cargar su carrito
+  if (authStore.isAuthenticated) {
+    try {
+      await cartStore.loadCartFromDB()
+      console.log('✅ Carrito cargado en App.vue')
+    } catch (error) {
+      console.error('⚠️ Error al cargar carrito en App.vue:', error)
+    }
+  }
 })
 </script>
 

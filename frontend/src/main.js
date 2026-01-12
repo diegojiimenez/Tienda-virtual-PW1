@@ -11,13 +11,3 @@ app.use(pinia)
 app.use(router)
 
 app.mount('#app')
-
-// Inicializar autenticación y carrito después de que la app esté montada
-import { useAuthStore } from '@/stores/auth'
-import { useCartStore } from '@/stores/cart'
-
-router.isReady().then(() => {
-  const authStore = useAuthStore()
-  const cartStore = useCartStore()
-  
-})

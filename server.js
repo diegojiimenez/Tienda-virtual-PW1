@@ -49,15 +49,9 @@ async function startServer() {
   // Inicializar Apollo Server
   const apolloServer = await createApolloServer();
   
-  // GraphQL middleware
+  // GraphQL middleware ANTES de las rutas REST
   const graphqlMiddleware = getGraphQLMiddleware(apolloServer);
-  
-  // Aplicar middleware de GraphQL
-  if (Array.isArray(graphqlMiddleware)) {
-    app.use('/graphql', ...graphqlMiddleware);
-  } else {
-    app.use('/graphql', graphqlMiddleware);
-  }
+  app.use('/graphql', graphqlMiddleware);
 
   // Health check
   app.get('/health', (req, res) => {
@@ -70,22 +64,7 @@ async function startServer() {
     });
   });
 
-  app.get('/api', (req, res) => {
-    res.json({
-      success: true,
-      message: 'API de Tienda de Ropa',
-      version: '1.0.0',
-      environment: process.env.NODE_ENV,
-      endpoints: {
-        auth: '/api/auth',
-        products: '/api/products',
-        chats: '/api/chats',
-        graphql: '/graphql'
-      }
-    });
-  });
-
-  // Rutas REST
+  // Rutas REST (NO TOCAR)
   app.use('/api/auth', authRoutes);
   app.use('/api/products', productRoutes);
   app.use('/api/chats', chatRoutes);

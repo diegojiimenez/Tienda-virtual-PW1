@@ -32,12 +32,17 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('token', this.token)
         api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
 
-        // Cargar el carrito del usuario después de login exitoso
-        const { useCartStore } = await import('./cart')
-        const cartStore = useCartStore()
-        cartStore.loadCartFromStorage()
-
         console.log(`✅ Usuario autenticado: ${this.user.nombre}`)
+
+        // ✅ CARGAR CARRITO DESPUÉS DEL LOGIN
+        try {
+          const { useCartStore } = await import('./cart')
+          const cartStore = useCartStore()
+          await cartStore.loadCartFromDB()
+          console.log('✅ Carrito cargado después del login')
+        } catch (cartError) {
+          console.error('⚠️ Error al cargar carrito:', cartError)
+        }
 
         return response.data
       } catch (error) {
@@ -61,12 +66,17 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('token', this.token)
         api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
 
-        // Cargar el carrito del usuario después de registro exitoso
-        const { useCartStore } = await import('./cart')
-        const cartStore = useCartStore()
-        cartStore.loadCartFromStorage()
-
         console.log(`✅ Usuario registrado: ${this.user.nombre}`)
+
+        // ✅ CARGAR CARRITO DESPUÉS DEL REGISTRO
+        try {
+          const { useCartStore } = await import('./cart')
+          const cartStore = useCartStore()
+          await cartStore.loadCartFromDB()
+          console.log('✅ Carrito cargado después del registro')
+        } catch (cartError) {
+          console.error('⚠️ Error al cargar carrito:', cartError)
+        }
 
         return response.data
       } catch (error) {
@@ -80,11 +90,14 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       console.log(`👋 Cerrando sesión de: ${this.user?.nombre}`)
 
-      // Limpiar solo el store del carrito (NO el localStorage)
-      // El carrito persiste en localStorage para cuando el usuario vuelva
-      const { useCartStore } = await import('./cart')
-      const cartStore = useCartStore()
-      cartStore.clearStoreOnly()
+      // Limpiar solo el store del carrito (la BD mantiene los datos)
+      try {
+        const { useCartStore } = await import('./cart')
+        const cartStore = useCartStore()
+        cartStore.clearStoreOnly()
+      } catch (error) {
+        console.error('⚠️ Error al limpiar carrito:', error)
+      }
 
       // Limpiar autenticación
       this.user = null
@@ -95,12 +108,11 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('token')
       delete api.defaults.headers.common['Authorization']
 
-      console.log('✅ Sesión cerrada (carrito persistente en localStorage)')
+      console.log('✅ Sesión cerrada (carrito persistente en BD)')
     },
 
-    
     async initializeAuth() {
-      if (this.initialized) return; // Ya inicializado
+      if (this.initialized) return
       
       const token = localStorage.getItem('token')
       
@@ -111,20 +123,17 @@ export const useAuthStore = defineStore('auth', {
 
           if (decoded.exp < currentTime) {
             console.log('⏰ Token expirado, cerrando sesión...')
-            this.logout()
+            await this.logout()
           } else {
             this.token = token
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
             await this.fetchUserProfile()
             
-            // Cargar el carrito del usuario
-            const { useCartStore } = await import('./cart')
-            const cartStore = useCartStore()
-            cartStore.loadCartFromStorage()
+            // ✅ NO CARGAR CARRITO AQUÍ (se carga en App.vue)
           }
         } catch (error) {
           console.error('❌ Error al decodificar token:', error)
-          this.logout()
+          await this.logout()
         }
       }
       
@@ -138,7 +147,7 @@ export const useAuthStore = defineStore('auth', {
         console.log(`✅ Perfil de usuario cargado: ${this.user.nombre}`)
       } catch (error) {
         console.error('❌ Error al cargar perfil:', error)
-        this.logout()
+        await this.logout()
         throw error
       }
     }
