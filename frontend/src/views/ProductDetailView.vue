@@ -20,6 +20,18 @@
           
           <!-- User Menu -->
           <div class="flex items-center space-x-4">
+            <!-- Botón de carrito -->
+            <button 
+              @click="openCart"
+              class="relative p-2 text-gray-600 hover:text-gray-900"
+            >
+              <ShoppingBagIcon class="w-6 h-6" />
+              <span v-if="cartStore.totalItems > 0" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform bg-red-500 rounded-full">
+                {{ cartStore.totalItems }}
+              </span>
+            </button>
+
+            <!-- Botón de mensajes -->
             <button 
               @click="openMessages"
               class="relative p-2 text-gray-600 hover:text-gray-900"
@@ -288,6 +300,7 @@ import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/stores/product';
 import { useAuthStore } from '@/stores/auth';
+import { useCartStore } from '@/stores/cart';
 import { 
   ArrowLeftIcon, 
   ShoppingCartIcon, 
@@ -305,6 +318,7 @@ const route = useRoute();
 const router = useRouter();
 const productStore = useProductStore();
 const authStore = useAuthStore();
+const cartStore = useCartStore();
 
 const product = ref(null);
 const loading = ref(true);
@@ -439,11 +453,26 @@ const addToCart = () => {
     return;
   }
 
+  // Agregar al carrito
+  cartStore.addItem({
+    product: product.value,
+    quantity: quantity.value,
+    size: selectedSize.value,
+    color: selectedColor.value
+  });
+
   showToast(
-    'Carrito en desarrollo',
-    'Esta funcionalidad estará disponible próximamente',
-    '🛒'
+    'Added to cart!',
+    `${quantity.value} ${product.value.nombre} added to your cart`,
+    '✅'
   );
+
+  // Abrir el drawer del carrito
+  cartStore.openDrawer();
+};
+
+const openCart = () => {
+  cartStore.openDrawer();
 };
 
 const buyNow = () => {
@@ -456,11 +485,16 @@ const buyNow = () => {
     return;
   }
 
-  showToast(
-    'Compra directa próximamente',
-    'Estamos trabajando en esta funcionalidad',
-    '🚀'
-  );
+  // Agregar al carrito
+  cartStore.addItem({
+    product: product.value,
+    quantity: quantity.value,
+    size: selectedSize.value,
+    color: selectedColor.value
+  });
+
+  // Ir directamente a la página del carrito
+  router.push('/cart');
 };
 
 // Watch para recargar el producto cuando cambie la ruta

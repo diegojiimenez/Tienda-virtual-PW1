@@ -30,6 +30,17 @@
 
           <!-- User Menu -->
           <div class="flex items-center space-x-4">
+            <!-- Botón de carrito -->
+            <button 
+              @click="openCart"
+              class="relative p-2 text-gray-600 hover:text-gray-900"
+            >
+              <ShoppingBagIcon class="w-6 h-6" />
+              <span v-if="cartStore.totalItems > 0" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform bg-red-500 rounded-full">
+                {{ cartStore.totalItems }}
+              </span>
+            </button>
+
             <!-- Botón de mensajes -->
             <button 
               @click="openMessages"
@@ -38,7 +49,7 @@
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <span v-if="unreadMessages > 0" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+              <span v-if="unreadMessages > 0" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform bg-red-500 rounded-full">
                 {{ unreadMessages }}
               </span>
             </button>
@@ -285,12 +296,15 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useProductStore } from '@/stores/product';
+import { useCartStore } from '@/stores/cart';
 import { MagnifyingGlassIcon, ChevronDownIcon } from '@heroicons/vue/24/outline';
 import ProductCard from '@/components/ProductCard.vue';
+import { ShoppingBagIcon } from '@heroicons/vue/24/outline';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const productStore = useProductStore();
+const cartStore = useCartStore();
 
 // Dropdown state
 const showDropdown = ref(false);
@@ -406,6 +420,10 @@ const logout = () => {
   authStore.logout();
   router.push('/login');
   closeDropdown();
+};
+
+const openCart = () => {
+  cartStore.openDrawer();
 };
 
 const handleClickOutside = (event) => {

@@ -32,6 +32,13 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('token', this.token)
         api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
 
+        // Cargar el carrito del usuario después de login exitoso
+        const { useCartStore } = await import('./cart')
+        const cartStore = useCartStore()
+        cartStore.loadCartFromStorage()
+
+        console.log(`✅ Usuario autenticado: ${this.user.nombre}`)
+
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Error al iniciar sesión'
@@ -54,6 +61,13 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('token', this.token)
         api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
 
+        // Cargar el carrito del usuario después de registro exitoso
+        const { useCartStore } = await import('./cart')
+        const cartStore = useCartStore()
+        cartStore.loadCartFromStorage()
+
+        console.log(`✅ Usuario registrado: ${this.user.nombre}`)
+
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Error al registrarse'
@@ -64,6 +78,15 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
+      console.log(`👋 Cerrando sesión de: ${this.user?.nombre}`)
+
+      // Limpiar solo el store del carrito (NO el localStorage)
+      // El carrito persiste en localStorage para cuando el usuario vuelva
+      const { useCartStore } = await import('./cart')
+      const cartStore = useCartStore()
+      cartStore.clearStoreOnly()
+
+      // Limpiar autenticación
       this.user = null
       this.token = null
       this.error = null
@@ -71,6 +94,8 @@ export const useAuthStore = defineStore('auth', {
 
       localStorage.removeItem('token')
       delete api.defaults.headers.common['Authorization']
+
+      console.log('✅ Sesión cerrada (carrito persistente en localStorage)')
     },
 
     
@@ -85,30 +110,36 @@ export const useAuthStore = defineStore('auth', {
           const currentTime = Date.now() / 1000
 
           if (decoded.exp < currentTime) {
-            console.log('Token expirado, cerrando sesión...')
+            console.log('⏰ Token expirado, cerrando sesión...')
             this.logout()
           } else {
             this.token = token
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-            await this.fetchUserProfile() 
+            await this.fetchUserProfile()
+            
+            // Cargar el carrito del usuario
+            const { useCartStore } = await import('./cart')
+            const cartStore = useCartStore()
+            cartStore.loadCartFromStorage()
           }
         } catch (error) {
-          console.error('Error al decodificar token:', error)
+          console.error('❌ Error al decodificar token:', error)
           this.logout()
         }
       }
       
-      this.initialized = true 
+      this.initialized = true
     },
 
     async fetchUserProfile() {
       try {
         const response = await api.get('/auth/me')
-        this.user = response.data.user
-        console.log('Usuario cargado:', this.user)
+        this.user = response.data
+        console.log(`✅ Perfil de usuario cargado: ${this.user.nombre}`)
       } catch (error) {
-        console.error('Error al obtener perfil:', error)
+        console.error('❌ Error al cargar perfil:', error)
         this.logout()
+        throw error
       }
     }
   }
