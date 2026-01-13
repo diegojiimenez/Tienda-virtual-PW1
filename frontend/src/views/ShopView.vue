@@ -1,98 +1,9 @@
 <template>
   <div class="min-h-screen bg-white">
     <!-- Navbar -->
-    <nav class="sticky top-0 bg-white border-b border-gray-200 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo y nombre -->
-          <div class="flex items-center space-x-2">
-            <span class="text-2xl">🛍️</span>
-            <span class="text-xl font-bold text-gray-900">FashionDiego</span>
-          </div>
-          
-          <!-- Links de navegación -->
-          <div class="hidden md:flex items-center space-x-8">
-            <router-link 
-              to="/shop" 
-              class="text-gray-900 font-medium"
-            >
-              Shop
-            </router-link>
-            <!-- Mostrar link de Admin solo si es administrador -->
-            <router-link 
-              v-if="authStore.isAdmin" 
-              to="/admin" 
-              class="text-gray-600 hover:text-gray-900"
-            >
-              Admin
-            </router-link>
-          </div>
+    <Navbar />
 
-          <!-- User Menu -->
-          <div class="flex items-center space-x-4">
-            <!-- Botón de carrito -->
-            <button 
-              @click="openCart"
-              class="relative p-2 text-gray-600 hover:text-gray-900"
-            >
-              <ShoppingBagIcon class="w-6 h-6" />
-              <span v-if="cartStore.totalItems > 0" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform bg-red-500 rounded-full">
-                {{ cartStore.totalItems }}
-              </span>
-            </button>
-
-            <!-- Botón de mensajes -->
-            <button 
-              @click="openMessages"
-              class="relative p-2 text-gray-600 hover:text-gray-900"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span v-if="unreadMessages > 0" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform bg-red-500 rounded-full">
-                {{ unreadMessages }}
-              </span>
-            </button>
-
-            <!-- Dropdown del usuario -->
-            <div class="relative" ref="dropdown">
-              <button
-                @click="toggleDropdown"
-                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                  <span class="text-sm font-medium text-gray-700">
-                    {{ authStore.user?.nombre?.charAt(0).toUpperCase() }}
-                  </span>
-                </div>
-                <ChevronDownIcon class="w-4 h-4 text-gray-500" />
-              </button>
-
-              <!-- Dropdown Menu -->
-              <div
-                v-show="showDropdown"
-                class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-              >
-                <div class="p-3 border-b border-gray-200">
-                  <p class="text-sm font-medium text-gray-900">{{ authStore.user?.nombre }} {{ authStore.user?.apellido }}</p>
-                  <p class="text-xs text-gray-500">{{ authStore.user?.email }}</p>
-                </div>
-                <div class="py-1">
-                  <button
-                    @click="logout"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-
- <!-- Contenido principal -->
+    <!-- Contenido principal -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Barra de búsqueda -->
       <div class="mb-8">
@@ -299,21 +210,17 @@ import { useProductStore } from '@/stores/product';
 import { useCartStore } from '@/stores/cart';
 import { MagnifyingGlassIcon, ChevronDownIcon } from '@heroicons/vue/24/outline';
 import ProductCard from '@/components/ProductCard.vue';
-import { ShoppingBagIcon } from '@heroicons/vue/24/outline';
+import Navbar from '@/components/Navbar.vue';  // ✅ AGREGAR
 
 const router = useRouter();
 const authStore = useAuthStore();
 const productStore = useProductStore();
 const cartStore = useCartStore();
 
-// Dropdown state
-const showDropdown = ref(false);
-const dropdown = ref(null);
+// ELIMINAR: showDropdown, dropdown, toggleDropdown, closeDropdown, logout, handleClickOutside del usuario
+// MANTENER SOLO: activeFilter y su lógica
 
-const showUserMenu = ref(false);
 const activeFilter = ref(null);
-const unreadMessages = ref(0);
-
 const priceRange = ref({
   min: 0,
   max: 1000
@@ -355,10 +262,6 @@ const handleSearch = () => {
 
 const toggleFilter = (filter) => {
   activeFilter.value = activeFilter.value === filter ? null : filter;
-};
-
-const toggleUserMenu = () => {
-  showUserMenu.value = !showUserMenu.value;
 };
 
 const selectCategory = (cat) => {
@@ -408,33 +311,10 @@ const handleLogout = () => {
   router.push('/login');
 };
 
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
-const closeDropdown = () => {
-  showDropdown.value = false;
-};
-
-const logout = () => {
-  authStore.logout();
-  router.push('/login');
-  closeDropdown();
-};
-
-const openCart = () => {
-  cartStore.openDrawer();
-};
-
 const handleClickOutside = (event) => {
-  // Manejar otros filtros
+  // SOLO para filtros, NO para dropdown de usuario (ya está en Navbar)
   if (!event.target.closest('.relative')) {
     activeFilter.value = null;
-  }
-  
-  // Manejar dropdown del usuario
-  if (dropdown.value && !dropdown.value.contains(event.target)) {
-    closeDropdown();
   }
 };
 

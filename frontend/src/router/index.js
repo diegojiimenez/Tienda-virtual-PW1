@@ -10,6 +10,8 @@ const ChatView = () => import('@/views/ChatView.vue')
 const AdminView = () => import('@/views/AdminView.vue')
 const AdminChatView = () => import('@/views/AdminChatView.vue')
 const CartView = () => import('@/views/CartView.vue')
+const OrdersView = () => import('@/views/OrdersView.vue')
+const OrderDetailView = () => import('@/views/OrderDetailView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +44,18 @@ const router = createRouter({
       path: '/cart',
       name: 'cart',
       component: CartView,
+      meta: { requiresAuth: true }
+    },
+     {
+      path: '/orders',
+      name: 'orders',
+      component: OrdersView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/orders/:id',
+      name: 'order-detail',
+      component: OrderDetailView,
       meta: { requiresAuth: true }
     },
     {
@@ -81,13 +95,19 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  await authStore.initializeAuth()
-  
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+  if (!authStore.initialized) {
+    await authStore.initializeAuth()
+  }
+
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const requiresGuest = to.matched.some(record => record.meta.requiresGuest)
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
+
+  if (requiresAuth && !authStore.isAuthenticated) {
     next('/login')
-  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
+  } else if (requiresGuest && authStore.isAuthenticated) {
     next('/shop')
-  } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
+  } else if (requiresAdmin && !authStore.isAdmin) {
     next('/shop')
   } else {
     next()

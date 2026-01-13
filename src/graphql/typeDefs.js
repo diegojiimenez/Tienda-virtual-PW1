@@ -45,6 +45,39 @@ const typeDefs = gql`
     updatedAt: String!
   }
 
+  # ===== NUEVOS TIPOS PARA ÓRDENES =====
+  
+  type OrderItem {
+    id: ID!
+    producto: Product!
+    nombre: String!
+    imagen: String
+    cantidad: Int!
+    talla: String!
+    color: String!
+    precioUnitario: Float!
+    subtotal: Float!
+  }
+
+  type Order {
+    id: ID!
+    usuario: User!
+    numeroOrden: String!
+    items: [OrderItem!]!
+    subtotal: Float!
+    impuestos: Float!
+    total: Float!
+    estado: String!
+    fechaOrden: String!
+    fechaCompletada: String
+    fechaCancelada: String
+    motivoCancelacion: String
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  # ===== INPUTS =====
+
   input AddToCartInput {
     productoId: ID!
     cantidad: Int!
@@ -57,26 +90,42 @@ const typeDefs = gql`
     cantidad: Int!
   }
 
-  type Query {
-    # Obtener el carrito del usuario autenticado
-    myCart: Cart
-    
-    # Obtener carrito por ID (solo admin)
-    cart(id: ID!): Cart
+  input CancelOrderInput {
+    orderId: ID!
+    motivo: String!
   }
 
+  # ===== QUERIES =====
+
+  type Query {
+    # Carrito
+    myCart: Cart
+    cart(id: ID!): Cart
+    
+    # Órdenes
+    myOrders: [Order!]!
+    order(id: ID!): Order
+    orderByNumber(numeroOrden: String!): Order
+    
+    # Admin - Órdenes
+    allOrders(estado: String): [Order!]!
+  }
+
+  # ===== MUTATIONS =====
+
   type Mutation {
-    # Agregar producto al carrito
+    # Carrito
     addToCart(input: AddToCartInput!): Cart!
-    
-    # Actualizar cantidad de un item
     updateCartItem(input: UpdateCartItemInput!): Cart!
-    
-    # Remover item del carrito
     removeFromCart(itemId: ID!): Cart!
-    
-    # Limpiar todo el carrito
     clearCart: Cart!
+    
+    # Órdenes
+    createOrder: Order!
+    cancelOrder(input: CancelOrderInput!): Order!
+    
+    # Admin - Órdenes
+    completeOrder(orderId: ID!): Order!
   }
 `;
 

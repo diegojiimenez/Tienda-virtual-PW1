@@ -1,52 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Navbar -->
-    <nav class="sticky top-0 bg-white border-b border-gray-200 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo -->
-          <router-link to="/shop" class="flex items-center space-x-2">
-            <span class="text-2xl">🛍️</span>
-            <span class="text-xl font-bold text-gray-900">FashionDiego</span>
-          </router-link>
-
-          <!-- User Menu -->
-          <div class="flex items-center space-x-4">
-            <div class="relative" ref="dropdown">
-              <button
-                @click="toggleDropdown"
-                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                  <span class="text-sm font-medium text-gray-700">
-                    {{ authStore.user?.nombre?.charAt(0).toUpperCase() }}
-                  </span>
-                </div>
-                <ChevronDownIcon class="w-4 h-4 text-gray-500" />
-              </button>
-
-              <div
-                v-show="showDropdown"
-                class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-              >
-                <div class="p-3 border-b border-gray-200">
-                  <p class="text-sm font-medium text-gray-900">{{ authStore.user?.nombre }} {{ authStore.user?.apellido }}</p>
-                  <p class="text-xs text-gray-500">{{ authStore.user?.email }}</p>
-                </div>
-                <div class="py-1">
-                  <button
-                    @click="logout"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <Navbar />
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -192,11 +147,9 @@
               </div>
             </div>
 
-            <button
-              @click="proceedToCheckout"
-              class="w-full btn-primary mt-6 py-3"
-            >
-              Proceed to Checkout
+            <button @click="placeOrder" :disabled="cartStore.loading"
+              class="w-full btn-primary mt-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ cartStore.loading ? 'Processing...' : 'Place Order' }}
             </button>
 
             <router-link
@@ -224,6 +177,41 @@
           </div>
         </div>
       </div>
+
+      <!-- Success Modal -->
+      <div
+        v-if="showSuccessModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        @click.self="closeSuccessModal"
+      >
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-fade-in">
+          <div class="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full mb-4">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          
+          <h3 class="text-xl font-bold text-gray-900 text-center mb-2">
+            Order Placed Successfully!
+          </h3>
+          
+          <p class="text-sm text-gray-600 text-center mb-4">
+            Your order has been confirmed and is being processed.
+          </p>
+
+          <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <p class="text-sm text-gray-600 text-center">Order Number</p>
+            <p class="text-lg font-bold text-gray-900 text-center">{{ orderNumber }}</p>
+          </div>
+
+          <button
+            @click="closeSuccessModal"
+            class="w-full btn-primary py-3"
+          >
+            View Order Details
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -233,13 +221,13 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
+import { useOrderStore } from '@/stores/order';
+import Navbar from '@/components/Navbar.vue';  // ✅ AGREGAR
 import {
   ArrowLeftIcon,
-  ShoppingCartIcon,
   TrashIcon,
   MinusIcon,
   PlusIcon,
-  ChevronDownIcon,
   TruckIcon,
   ShieldCheckIcon,
   ArrowPathIcon
@@ -249,24 +237,12 @@ import { useConfirm } from '@/composables/useConfirm';
 const router = useRouter();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const orderStore = useOrderStore();
 
-const showDropdown = ref(false);
-const dropdown = ref(null);
 const updating = ref(false);
-
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
-const closeDropdown = () => {
-  showDropdown.value = false;
-};
-
-const logout = () => {
-  authStore.logout();
-  router.push('/login');
-  closeDropdown();
-};
+const showSuccessModal = ref(false);
+const orderNumber = ref('');
+const orderId = ref('');
 
 const goBack = () => {
   router.push('/shop');
@@ -316,28 +292,36 @@ const removeItem = async (index) => {
   }
 };
 
-const proceedToCheckout = () => {
-  // TODO: Implementar checkout con GraphQL
-  alert('Checkout functionality coming soon with GraphQL!');
+const placeOrder = async () => {
+  try {
+    cartStore.loading = true;
+    const order = await orderStore.createOrder();
+    
+    orderNumber.value = order.numeroOrden;
+    orderId.value = order.id;
+    
+    // ✅ RECARGAR CARRITO
+    await cartStore.loadCartFromDB();
+    
+    showSuccessModal.value = true;
+  } catch (error) {
+    await confirm({
+      title: 'Error',
+      message: error.message || 'Error placing order. Please try again.',
+      confirmText: 'OK',
+      type: 'danger'
+    });
+  } finally {
+    cartStore.loading = false;
+  }
+};
+
+const closeSuccessModal = () => {
+  showSuccessModal.value = false;
+  router.push(`/orders/${orderId.value}`);
 };
 
 const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/300?text=No+Image';
 };
-
-const handleClickOutside = (event) => {
-  if (dropdown.value && !dropdown.value.contains(event.target)) {
-    closeDropdown();
-  }
-};
-
-onMounted(async () => {
-  // Cargar carrito desde BD al montar el componente
-  await cartStore.loadCartFromDB();
-  document.addEventListener('click', handleClickOutside);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside);
-});
 </script>

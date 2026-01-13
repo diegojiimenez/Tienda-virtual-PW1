@@ -1,83 +1,7 @@
 <template>
   <div class="min-h-screen bg-white">
-    <!-- Navbar -->
-    <nav class="sticky top-0 bg-white border-b border-gray-200 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo y nombre -->
-          <div class="flex items-center space-x-4">
-            <button 
-              @click="goBack"
-              class="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ArrowLeftIcon class="h-5 w-5 text-gray-600" />
-            </button>
-            <div class="flex items-center space-x-2">
-              <span class="text-2xl">🛍️</span>
-              <span class="text-xl font-bold text-gray-900">FashionDiego</span>
-            </div>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="flex items-center space-x-4">
-            <!-- Botón de carrito -->
-            <button 
-              @click="openCart"
-              class="relative p-2 text-gray-600 hover:text-gray-900"
-            >
-              <ShoppingBagIcon class="w-6 h-6" />
-              <span v-if="cartStore.totalItems > 0" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform bg-red-500 rounded-full">
-                {{ cartStore.totalItems }}
-              </span>
-            </button>
-
-            <!-- Botón de mensajes -->
-            <button 
-              @click="openMessages"
-              class="relative p-2 text-gray-600 hover:text-gray-900"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </button>
-
-            <!-- Dropdown del usuario -->
-            <div class="relative" ref="dropdown">
-              <button
-                @click="toggleDropdown"
-                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                  <span class="text-sm font-medium text-gray-700">
-                    {{ authStore.user?.nombre?.charAt(0).toUpperCase() }}
-                  </span>
-                </div>
-                <ChevronDownIcon class="w-4 h-4 text-gray-500" />
-              </button>
-
-              <!-- Dropdown Menu -->
-              <div
-                v-show="showDropdown"
-                class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-              >
-                <div class="p-3 border-b border-gray-200">
-                  <p class="text-sm font-medium text-gray-900">{{ authStore.user?.nombre }} {{ authStore.user?.apellido }}</p>
-                  <p class="text-xs text-gray-500">{{ authStore.user?.email }}</p>
-                </div>
-                <div class="py-1">
-                  <button
-                    @click="logout"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <!-- Navbar con botón de retroceso -->
+    <Navbar :show-back-button="true" />
 
     <!-- Contenido principal -->
     <div v-if="loading" class="flex justify-center items-center py-20">
@@ -302,17 +226,16 @@ import { useProductStore } from '@/stores/product';
 import { useAuthStore } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart';
 import { 
-  ArrowLeftIcon, 
-  ShoppingCartIcon, 
   MinusIcon, 
   PlusIcon,
   TruckIcon,
   ArrowPathIcon,
   ShieldCheckIcon,
-  ChevronDownIcon
+  ShoppingCartIcon
 } from '@heroicons/vue/24/outline';
 import productService from '@/services/ProductService';
 import ProductCard from '@/components/ProductCard.vue';
+import Navbar from '@/components/Navbar.vue';  // ✅ AGREGAR
 
 const route = useRoute();
 const router = useRouter();
@@ -399,14 +322,6 @@ const handleImageError = (event) => {
 
 const goBack = () => {
   router.push('/shop');
-};
-
-const openMessages = () => {
-  if (authStore.isAdmin) {
-    router.push('/admin/chat');
-  } else {
-    router.push('/chat');
-  }
 };
 
 const viewProduct = (id) => {
@@ -500,48 +415,15 @@ const buyNow = () => {
 // Watch para recargar el producto cuando cambie la ruta
 watch(() => route.params.id, async (newId) => {
   if (newId) {
-    // Resetear estado
     selectedColor.value = '';
     selectedSize.value = '';
     quantity.value = 1;
     relatedProducts.value = [];
-    
-    // Cargar nuevo producto
     await fetchProduct();
   }
 });
 
-// Dropdown state
-const showDropdown = ref(false);
-const dropdown = ref(null);
-
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
-const closeDropdown = () => {
-  showDropdown.value = false;
-};
-
-const logout = () => {
-  authStore.logout();
-  router.push('/login');
-  closeDropdown();
-};
-
-// Close dropdown when clicking outside
-const handleClickOutside = (event) => {
-  if (dropdown.value && !dropdown.value.contains(event.target)) {
-    closeDropdown();
-  }
-};
-
 onMounted(() => {
   fetchProduct();
-  document.addEventListener('click', handleClickOutside);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside);
 });
 </script>

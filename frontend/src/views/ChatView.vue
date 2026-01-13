@@ -1,65 +1,11 @@
 <template>
   <div class="h-screen bg-gray-50 flex flex-col">
     <!-- Navbar -->
-    <nav class="bg-white border-b border-gray-200 flex-shrink-0">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo -->
-          <router-link to="/shop" class="flex items-center space-x-2">
-            <span class="text-2xl">🛍️</span>
-            <span class="text-xl font-bold text-gray-900">FashionDiego</span>
-          </router-link>
+    <div class="flex-shrink-0">
+      <Navbar />
+    </div>
 
-          <!-- Navigation -->
-          <div class="hidden md:flex items-center space-x-8">
-            <router-link to="/shop" class="text-gray-600 hover:text-gray-900">Shop</router-link>
-            <!-- <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
-            <router-link to="/men" class="text-gray-600 hover:text-gray-900">Men</router-link>
-            <router-link to="/women" class="text-gray-600 hover:text-gray-900">Women</router-link> -->
-          </div>
-
-          <!-- User Menu -->
-          <div class="flex items-center space-x-4">
-
-            <!-- Dropdown del usuario -->
-            <div class="relative" ref="dropdown">
-              <button
-                @click="toggleDropdown"
-                class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                  <span class="text-sm font-medium text-gray-700">
-                    {{ authStore.user?.nombre?.charAt(0).toUpperCase() }}
-                  </span>
-                </div>
-                <ChevronDownIcon class="w-4 h-4 text-gray-500" />
-              </button>
-
-              <!-- Dropdown Menu -->
-              <div
-                v-show="showDropdown"
-                class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
-              >
-                <div class="p-3 border-b border-gray-200">
-                  <p class="text-sm font-medium text-gray-900">{{ authStore.user?.nombre }} {{ authStore.user?.apellido }}</p>
-                  <p class="text-xs text-gray-500">{{ authStore.user?.email }}</p>
-                </div>
-                <div class="py-1">
-                  <button
-                    @click="logout"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Chat Container - Ajustado igual que AdminChatView -->
+    <!-- Chat Container -->
     <div class="flex-1 flex overflow-hidden max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
       <!-- Sidebar -->
       <div class="w-80 bg-white border-r border-gray-200 flex flex-col">
@@ -181,43 +127,24 @@ import { useAuthStore } from '@/stores/auth';
 import ChatSidebar from '@/components/chat/ChatSidebar.vue';
 import ChatMessages from '@/components/chat/ChatMessages.vue';
 import ChatInput from '@/components/chat/ChatInput.vue';
+import Navbar from '@/components/Navbar.vue';  // ✅ AGREGAR
 import { 
   ChatBubbleLeftRightIcon,
   ShoppingBagIcon,
   CalendarIcon,
   UserCircleIcon,
-  TruckIcon,
-  ChevronDownIcon
+  TruckIcon
 } from '@heroicons/vue/24/outline';
 
 const router = useRouter();
 const chatStore = useChatStore();
 const authStore = useAuthStore();
 
-// Dropdown state
-const showDropdown = ref(false);
-const dropdown = ref(null);
-
 const channelTitles = {
   'orders': 'Support',
   'customer-support': 'Support',
   'admin': 'Admin',
   'shipping': 'Support'
-};
-
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
-const closeDropdown = () => {
-  showDropdown.value = false;
-};
-
-// Close dropdown when clicking outside
-const handleClickOutside = (event) => {
-  if (dropdown.value && !dropdown.value.contains(event.target)) {
-    closeDropdown();
-  }
 };
 
 const getChannelTitle = (channel) => {
@@ -247,20 +174,9 @@ const closeChat = async () => {
   }
 };
 
-const logout = () => {
-  authStore.logout();
-  router.push('/login');
-  closeDropdown();
-};
-
 onMounted(async () => {
-  document.addEventListener('click', handleClickOutside);
   chatStore.initializeSocket();
   await chatStore.fetchUserChats();
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
