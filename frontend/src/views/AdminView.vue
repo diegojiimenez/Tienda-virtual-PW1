@@ -13,22 +13,15 @@
           <!-- Links de navegación -->
           <div class="hidden md:flex items-center space-x-8">
             <router-link to="/shop" class="text-gray-600 hover:text-gray-900">Shop</router-link>
-            <!-- <router-link to="/new-arrivals" class="text-gray-600 hover:text-gray-900">New Arrivals</router-link>
-            <router-link to="/men" class="text-gray-600 hover:text-gray-900">Men</router-link>
-            <router-link to="/women" class="text-gray-600 hover:text-gray-900">Women</router-link>
-            <router-link to="/accessories" class="text-gray-600 hover:text-gray-900">Accesorios</router-link>
-            <router-link to="/sale" class="text-gray-600 hover:text-gray-900">Sale</router-link> -->
             <router-link to="/admin" class="text-gray-900 font-medium">Admin</router-link>
           </div>
 
           <!-- Iconos de usuario -->
           <div class="flex items-center space-x-4">
-
-
             <!-- Dropdown del usuario -->
             <div class="relative" ref="dropdown">
               <button
-                @click="toggleDropdown"
+                @click="showDropdown = !showDropdown"
                 class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
@@ -219,8 +212,6 @@
               </button>
             </div>
 
-            
-
             <!-- Estadísticas -->
             <div v-if="loading" class="flex justify-center py-20">
               <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -279,86 +270,239 @@
                 <div class="overflow-x-auto">
                   <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
-      <tr>
-        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Product ID
-        </th>
-        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Name
-        </th>
-        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Last Restock
-        </th>
-        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Status
-        </th>
-        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Quantity
-        </th>
-        <th class="px-6 py-3"></th>
-      </tr>
+                      <tr>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Product ID
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Last Restock
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Quantity
+                        </th>
+                        <th class="px-6 py-3"></th>
+                      </tr>
                     </thead>
-    <tbody class="bg-white divide-y divide-gray-200">
-      <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50">
-        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
-          #{{ product.id.slice(-4) }}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
-          {{ product.name }}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
-          {{ formatDate(product.lastRestock) }}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-center">
-          <span 
-            class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
-            :class="product.status === 'In Stock' 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-red-100 text-red-800'"
-          >
-            {{ product.status }}
-          </span>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-          {{ product.quantity }}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-center">
-          <div class="relative inline-block text-left">
-            <button
-              @click="toggleProductMenu(product.id)"
-              class="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
-              :ref="el => setProductMenuRef(product.id, el)"
-            >
-              <EllipsisVerticalIcon class="h-5 w-5" />
-            </button>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                          #{{ product.id.slice(-4) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
+                          {{ product.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
+                          {{ formatDate(product.lastRestock) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                          <span 
+                            class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                            :class="product.status === 'In Stock' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'"
+                          >
+                            {{ product.status }}
+                          </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          {{ product.quantity }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                          <div class="relative inline-block text-left">
+                            <button
+                              @click="toggleProductMenu(product.id)"
+                              class="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+                              :ref="el => setProductMenuRef(product.id, el)"
+                            >
+                              <EllipsisVerticalIcon class="h-5 w-5" />
+                            </button>
 
-            <!-- Dropdown menu -->
-            <div
-              v-if="activeProductMenu === product.id"
-              class="absolute mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
-              :class="getDropdownPosition(product.id)"
-            >
-              <button
-                @click="openEditModal(product)"
-                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center rounded-t-lg"
-              >
-                <PencilIcon class="h-4 w-4 mr-2" />
-                Edit
-              </button>
-              <button
-                @click="confirmDelete(product)"
-                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center rounded-b-lg"
-              >
-                <TrashIcon class="h-4 w-4 mr-2" />
-                Delete
-              </button>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
+                            <!-- Dropdown menu -->
+                            <div
+                              v-if="activeProductMenu === product.id"
+                              class="absolute mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10"
+                              :class="getDropdownPosition(product.id)"
+                            >
+                              <button
+                                @click="openEditModal(product)"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center rounded-t-lg"
+                              >
+                                <PencilIcon class="h-4 w-4 mr-2" />
+                                Edit
+                              </button>
+                              <button
+                                @click="confirmDelete(product)"
+                                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center rounded-b-lg"
+                              >
+                                <TrashIcon class="h-4 w-4 mr-2" />
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista de Órdenes -->
+          <div v-else-if="activeTab === 'orders'" class="space-y-6">
+            <div class="mb-6 flex items-center justify-between">
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900">Orders</h1>
+                <p class="text-sm text-gray-600 mt-1">Manage customer orders</p>
+              </div>
+            </div>
+
+            <!-- Filtros de órdenes -->
+            <div class="bg-white rounded-lg border border-gray-200 p-4">
+              <div class="flex gap-2">
+                <button
+                  @click="selectedOrderFilter = 'all'"
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  :class="{
+                    'bg-primary text-white': selectedOrderFilter === 'all',
+                    'bg-gray-100 text-gray-900': selectedOrderFilter !== 'all'
+                  }"
+                >
+                  all
+                </button>
+                <button
+                  @click="selectedOrderFilter = 'en-curso'"
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  :class="{
+                    'bg-primary text-white': selectedOrderFilter === 'en-curso',
+                    'bg-gray-100 text-gray-900': selectedOrderFilter !== 'en-curso'
+                  }"
+                >
+                  In Progress
+                </button>
+                <button
+                  @click="selectedOrderFilter = 'completada'"
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  :class="{
+                    'bg-primary text-white': selectedOrderFilter === 'completada',
+                    'bg-gray-100 text-gray-900': selectedOrderFilter !== 'completada'
+                  }"
+                >
+                  Completed
+                </button>
+                <button
+                  @click="selectedOrderFilter = 'cancelada'"
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  :class="{
+                    'bg-primary text-white': selectedOrderFilter === 'cancelada',
+                    'bg-gray-100 text-gray-900': selectedOrderFilter !== 'cancelada'
+                  }"
+                >
+                  Canceled
+                </button>
+              </div>
+            </div>
+
+            <!-- Estadísticas de órdenes -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 class="text-sm font-medium text-gray-600 mb-2">Total Orders</h3>
+                <p class="text-3xl font-bold text-gray-900">{{ orderStats.total }}</p>
+              </div>
+
+              <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 class="text-sm font-medium text-gray-600 mb-2">In Progress</h3>
+                <p class="text-3xl font-bold text-gray-900">{{ orderStats.inProgress }}</p>
+              </div>
+
+              <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 class="text-sm font-medium text-gray-600 mb-2">Completed</h3>
+                <p class="text-3xl font-bold text-gray-900">{{ orderStats.completed }}</p>
+              </div>
+
+              <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 class="text-sm font-medium text-gray-600 mb-2">Canceled</h3>
+                <p class="text-3xl font-bold text-gray-900">{{ orderStats.canceled }}</p>
+              </div>
+            </div>
+
+            <!-- Tabla de órdenes -->
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <div class="p-6 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Orders List</h2>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Order ID
+                      </th>
+                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Customer
+                      </th>
+                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total
+                      </th>
+                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th class="px-6 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-if="filteredAdminOrders.length === 0">
+                      <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        No orders found
+                      </td>
+                    </tr>
+                    <tr v-for="order in filteredAdminOrders" :key="order.id" class="hover:bg-gray-50">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                        {{ order.numeroOrden }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
+                        {{ order.usuario?.nombre }} {{ order.usuario?.apellido }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span 
+                          class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                          :class="getOrderStatusClass(order.estado)"
+                        >
+                          {{ getOrderStatusText(order.estado) }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        ${{ order.total.toFixed(2) }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">
+                        {{ formatDate(order.fechaOrden) }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <button @click="viewOrderDetail(order)"
+                          class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
+                          <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
+                          </svg>
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -370,186 +514,187 @@
         </main>
       </div>
     </div>
-  <!-- Modal de Editar/Crear Producto -->
-<div
-  v-if="showProductModal"
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-  @click.self="closeProductModal"
->
-  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-    <div class="p-6 border-b border-gray-200">
-      <h2 class="text-xl font-bold text-gray-900">
-        {{ isEditMode ? 'Edit Product' : 'Add New Product' }}
-      </h2>
+
+    <!-- Modal de Editar/Crear Producto -->
+    <div
+      v-if="showProductModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeProductModal"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-xl font-bold text-gray-900">
+            {{ isEditMode ? 'Edit Product' : 'Add New Product' }}
+          </h2>
+        </div>
+
+        <form @submit.prevent="saveProduct" class="p-6 space-y-4">
+          <!-- Nombre -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Product Name *
+            </label>
+            <input
+              v-model="productForm.nombre"
+              type="text"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="e.g., Classic T-Shirt"
+            />
+          </div>
+
+          <!-- Descripción -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Description *
+            </label>
+            <textarea
+              v-model="productForm.descripcion"
+              required
+              rows="3"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Product description..."
+            ></textarea>
+          </div>
+
+          <!-- Precio y Stock -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">
+                Price ($) *
+              </label>
+              <input
+                v-model.number="productForm.precio"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">
+                Stock *
+              </label>
+              <input
+                v-model.number="productForm.stock"
+                type="number"
+                min="0"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              />
+            </div>
+          </div>
+
+          <!-- Categoría -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Category *
+            </label>
+            <select
+              v-model="productForm.categoria"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 bg-white"
+            >
+              <option value="" disabled>Select a category</option>
+              <option value="camisas">Camisas</option>
+              <option value="pantalones">Pantalones</option>
+              <option value="zapatos">Zapatos</option>
+              <option value="chaquetas">Chaquetas</option>
+              <option value="vestidos">Vestidos</option>
+              <option value="faldas">Faldas</option>
+              <option value="shorts">Shorts</option>
+              <option value="accesorios">Accesorios</option>
+              <option value="ropa deportiva">Ropa Deportiva</option>
+              <option value="otros">Otros</option>
+            </select>
+          </div>
+
+          <!-- Colores -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Colors (comma separated)
+            </label>
+            <input
+              v-model="productForm.coloresString"
+              type="text"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="e.g., Black, White, Blue"
+            />
+          </div>
+
+          <!-- Tallas -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Sizes (comma separated)
+            </label>
+            <input
+              v-model="productForm.tallasString"
+              type="text"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="e.g., S, M, L, XL"
+            />
+          </div>
+
+          <!-- URL de imagen -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Image URL *
+            </label>
+            <input
+              v-model="productForm.imagen"
+              type="url"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="https://example.com/image.jpg"
+            />
+            <!-- Preview de imagen -->
+            <div v-if="productForm.imagen" class="mt-2">
+              <img
+                :src="productForm.imagen"
+                alt="Preview"
+                class="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                @error="handleImageError"
+              />
+            </div>
+          </div>
+
+          <!-- Disponible -->
+          <div class="flex items-center">
+            <input
+              v-model="productForm.disponible"
+              type="checkbox"
+              id="disponible"
+              :disabled="productForm.stock === 0"
+              class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+            <label for="disponible" class="ml-2 text-sm text-gray-900">
+              Product available for sale
+              <span v-if="productForm.stock === 0" class="text-red-600 font-medium">(No stock available)</span>
+            </label>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              @click="closeProductModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              :disabled="savingProduct"
+              class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 disabled:opacity-50"
+            >
+              {{ savingProduct ? 'Saving...' : (isEditMode ? 'Update Product' : 'Create Product') }}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-
-    <form @submit.prevent="saveProduct" class="p-6 space-y-4">
-      <!-- Nombre -->
-      <div>
-        <label class="block text-sm font-medium text-gray-900 mb-2">
-          Product Name *
-        </label>
-        <input
-          v-model="productForm.nombre"
-          type="text"
-          required
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-          placeholder="e.g., Classic T-Shirt"
-        />
-      </div>
-
-      <!-- Descripción -->
-      <div>
-        <label class="block text-sm font-medium text-gray-900 mb-2">
-          Description *
-        </label>
-        <textarea
-          v-model="productForm.descripcion"
-          required
-          rows="3"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-          placeholder="Product description..."
-        ></textarea>
-      </div>
-
-      <!-- Precio y Stock -->
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-900 mb-2">
-            Price ($) *
-          </label>
-          <input
-            v-model.number="productForm.precio"
-            type="number"
-            step="0.01"
-            min="0"
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-900 mb-2">
-            Stock *
-          </label>
-          <input
-            v-model.number="productForm.stock"
-            type="number"
-            min="0"
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-          />
-        </div>
-      </div>
-
-      <!-- Categoría -->
-<div>
-  <label class="block text-sm font-medium text-gray-900 mb-2">
-    Category *
-  </label>
-  <select
-    v-model="productForm.categoria"
-    required
-    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 bg-white"
-  >
-    <option value="" disabled>Select a category</option>
-    <option value="camisas">Camisas</option>
-    <option value="pantalones">Pantalones</option>
-    <option value="zapatos">Zapatos</option>
-    <option value="chaquetas">Chaquetas</option>
-    <option value="vestidos">Vestidos</option>
-    <option value="faldas">Faldas</option>
-    <option value="shorts">Shorts</option>
-    <option value="accesorios">Accesorios</option>
-    <option value="ropa deportiva">Ropa Deportiva</option>
-    <option value="otros">Otros</option>
-  </select>
-</div>
-
-      <!-- Colores -->
-      <div>
-        <label class="block text-sm font-medium text-gray-900 mb-2">
-          Colors (comma separated)
-        </label>
-        <input
-          v-model="productForm.coloresString"
-          type="text"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-          placeholder="e.g., Black, White, Blue"
-        />
-      </div>
-
-      <!-- Tallas -->
-      <div>
-        <label class="block text-sm font-medium text-gray-900 mb-2">
-          Sizes (comma separated)
-        </label>
-        <input
-          v-model="productForm.tallasString"
-          type="text"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-          placeholder="e.g., S, M, L, XL"
-        />
-      </div>
-
-      <!-- URL de imagen -->
-      <div>
-        <label class="block text-sm font-medium text-gray-900 mb-2">
-          Image URL *
-        </label>
-        <input
-          v-model="productForm.imagen"
-          type="url"
-          required
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
-          placeholder="https://example.com/image.jpg"
-        />
-        <!-- Preview de imagen -->
-        <div v-if="productForm.imagen" class="mt-2">
-          <img
-            :src="productForm.imagen"
-            alt="Preview"
-            class="w-32 h-32 object-cover rounded-lg border border-gray-200"
-            @error="handleImageError"
-          />
-        </div>
-      </div>
-
-<!-- Disponible -->
-<div class="flex items-center">
-  <input
-    v-model="productForm.disponible"
-    type="checkbox"
-    id="disponible"
-    :disabled="productForm.stock === 0"
-    class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-  />
-  <label for="disponible" class="ml-2 text-sm text-gray-900">
-    Product available for sale
-    <span v-if="productForm.stock === 0" class="text-red-600 font-medium">(No stock available)</span>
-  </label>
-</div>
-
-      <!-- Botones -->
-      <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-        <button
-          type="button"
-          @click="closeProductModal"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          :disabled="savingProduct"
-          class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 disabled:opacity-50"
-        >
-          {{ savingProduct ? 'Saving...' : (isEditMode ? 'Update Product' : 'Create Product') }}
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
 
     <!-- Modal de Confirmación de Eliminación -->
     <div
@@ -588,6 +733,139 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Detalle de Orden -->
+    <div
+      v-if="showOrderDetailModal && selectedOrder"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeOrderDetailModal"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-xl font-bold text-gray-900">
+            Order Details - {{ selectedOrder.numeroOrden }}
+          </h2>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <!-- Información de la orden -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900 mb-2">Customer Information</h3>
+              <p class="text-sm text-gray-600">
+                <span class="font-semibold">Name:</span> {{ selectedOrder.usuario?.nombre }} {{ selectedOrder.usuario?.apellido }}
+              </p>
+              <p class="text-sm text-gray-600">
+                <span class="font-semibold">Email:</span> {{ selectedOrder.usuario?.email }}
+              </p>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-medium text-gray-900 mb-2">Order Information</h3>
+              <p class="text-sm text-gray-600">
+                <span class="font-semibold">Order ID:</span> {{ selectedOrder.numeroOrden }}
+              </p>
+              <p class="text-sm text-gray-600">
+                <span class="font-semibold">Status:</span> 
+                <span :class="getOrderStatusClass(selectedOrder.estado)" class="ml-1 px-2 py-0.5 rounded-full text-xs">
+                  {{ getOrderStatusText(selectedOrder.estado) }}
+                </span>
+              </p>
+              <p class="text-sm text-gray-600">
+                <span class="font-semibold">Date:</span> {{ formatDate(selectedOrder.fechaOrden) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Productos de la orden -->
+          <div>
+            <h3 class="text-sm font-medium text-gray-900 mb-2">Ordered Products</h3>
+            <div class="space-y-2">
+              <div
+                v-for="item in selectedOrder.items"
+                :key="item.id"
+                class="p-4 bg-gray-50 rounded-lg border border-gray-200"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4">
+                    <img 
+                      v-if="item.imagen" 
+                      :src="item.imagen" 
+                      :alt="item.nombre"
+                      class="w-16 h-16 object-cover rounded"
+                    />
+                    <div>
+                      <p class="text-sm font-semibold text-gray-900">{{ item.nombre }}</p>
+                      <p class="text-xs text-gray-600">
+                        Quantity: {{ item.cantidad }} | 
+                        <span v-if="item.talla">Size: {{ item.talla }} | </span>
+                        <span v-if="item.color">Color: {{ item.color }}</span>
+                      </p>
+                      <p class="text-xs text-gray-500 mt-1">
+                        ${{ item.precioUnitario.toFixed(2) }} each
+                      </p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-900">
+                      ${{ (item.precioUnitario * item.cantidad).toFixed(2) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumen -->
+          <div class="border-t border-gray-200 pt-4">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600">Subtotal:</span>
+              <span class="text-gray-900">${{ selectedOrder.subtotal?.toFixed(2) || '0.00' }}</span>
+            </div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600">Taxes:</span>
+              <span class="text-gray-900">${{ selectedOrder.impuestos?.toFixed(2) || '0.00' }}</span>
+            </div>
+            <div class="flex justify-between text-lg font-bold border-t border-gray-200 pt-2">
+              <span class="text-gray-900">Total:</span>
+              <span class="text-gray-900">${{ selectedOrder.total.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <!-- Motivo de cancelación si existe -->
+          <div v-if="selectedOrder.estado === 'cancelada' && selectedOrder.motivoCancelacion" class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-red-900 mb-1">Cancellation Reason:</h4>
+            <p class="text-sm text-red-700">{{ selectedOrder.motivoCancelacion }}</p>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="flex justify-end gap-2 border-t border-gray-200 pt-4">
+            <button
+              v-if="selectedOrder.estado === 'en-curso'"
+              @click="handleCompleteOrder(selectedOrder.id)"
+              class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <CheckCircleIcon class="h-5 w-5 mr-2" />
+              Complete Order
+            </button>
+            <button
+              v-if="selectedOrder.estado === 'en-curso'"
+              @click="handleCancelOrderAdmin(selectedOrder.id)"
+              class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <XCircleIcon class="h-5 w-5 mr-2" />
+              Cancel Order
+            </button>
+            <button
+              @click="closeOrderDetailModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -606,16 +884,22 @@ import {
   TrashIcon,
   ExclamationTriangleIcon,
   ChatBubbleLeftRightIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  CheckCircleIcon,
+  XCircleIcon
 } from '@heroicons/vue/24/outline';
 import adminService from '@/services/AdminService';
+import { useAdminOrderStore } from '@/stores/adminOrder'
+import { useConfirm } from '@/composables/useConfirm'
 
 const router = useRouter();
 const authStore = useAuthStore();
+const adminOrderStore = useAdminOrderStore()
+const { confirm } = useConfirm()
 
 const activeTab = ref('products');
 const loading = ref(true);
-const showUserMenu = ref(false);
+const showDropdown = ref(false);
 const activeProductMenu = ref(null);
 const showProductModal = ref(false);
 const showDeleteModal = ref(false);
@@ -630,6 +914,17 @@ const stats = ref({
   outOfStock: 0
 });
 const products = ref([]);
+
+// Estados para órdenes
+const orderStats = ref({
+  total: 0,
+  inProgress: 0,
+  completed: 0,
+  canceled: 0
+})
+const selectedOrderFilter = ref('all')
+const showOrderDetailModal = ref(false)
+const selectedOrder = ref(null)
 
 const productMenuRefs = ref({});
 const dropdownPositions = ref({});
@@ -655,6 +950,14 @@ const productForm = ref({
   disponible: true
 });
 
+// Computed para filtrar órdenes
+const filteredAdminOrders = computed(() => {
+  if (selectedOrderFilter.value === 'all') {
+    return adminOrderStore.orders
+  }
+  return adminOrderStore.orders.filter(order => order.estado === selectedOrderFilter.value)
+})
+
 // Watcher para el stock
 watch(() => productForm.value.stock, (newStock) => {
   if (newStock === 0) {
@@ -662,10 +965,6 @@ watch(() => productForm.value.stock, (newStock) => {
   } else if (newStock > 0 && !productForm.value.disponible) {
     productForm.value.disponible = true;
   }
-});
-
-const userAvatar = computed(() => {
-  return localStorage.getItem('userAvatar') || 'https://i.pravatar.cc/150?img=1';
 });
 
 const showNotification = (type, title, message) => {
@@ -683,10 +982,6 @@ const showNotification = (type, title, message) => {
   notificationTimeout = setTimeout(() => {
     notification.value.show = false;
   }, 3000);
-};
-
-const toggleUserMenu = () => {
-  showUserMenu.value = !showUserMenu.value;
 };
 
 const setProductMenuRef = (productId, el) => {
@@ -723,22 +1018,21 @@ const toggleProductMenu = (productId) => {
   });
 };
 
-const openMessages = () => {
-  router.push('/admin/chat');
-};
-
 const handleLogout = () => {
   authStore.logout();
   router.push('/login');
 };
 
 const formatDate = (date) => {
+  if (!date) return 'N/A'
   return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  });
-};
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
 
 const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/150?text=No+Image';
@@ -873,58 +1167,154 @@ const deleteProduct = async () => {
   }
 };
 
-const handleClickOutside = (event) => {
-  const dropdowns = document.querySelectorAll('.relative');
-  let clickedInside = false;
-  
-  dropdowns.forEach(dropdown => {
-    if (dropdown.contains(event.target)) {
-      clickedInside = true;
-    }
-  });
-  
-  if (!clickedInside) {
-    showUserMenu.value = false;
-    activeProductMenu.value = null;
-  }
-
-  if (dropdown.value && !dropdown.value.contains(event.target)) {
-    closeDropdown();
-  }
-};
-
+// FUNCIÓN QUE FALTABA: fetchProductData
 const fetchProductData = async () => {
   loading.value = true;
-
   try {
-    const [statsResponse, productsResponse] = await Promise.all([
-      adminService.getProductStats(),
-      adminService.getProductsTable()
-    ]);
-
+    const statsResponse = await adminService.getProductStats();
+    const tableResponse = await adminService.getProductsTable();
+    
     stats.value = statsResponse.data;
-    products.value = productsResponse.data;
+    products.value = tableResponse.data;
+    
+    console.log('✅ Products loaded:', products.value.length);
   } catch (error) {
-    console.error('Error fetching admin data:', error);
-    if (error.response?.status === 403) {
-      showNotification('error', 'Access Denied', 'You do not have administrator permissions.');
-      router.push('/shop');
-    }
+    console.error('❌ Error loading products:', error);
+    showNotification('error', 'Error', 'Failed to load products');
   } finally {
     loading.value = false;
   }
 };
 
-const showDropdown = ref(false);
-const dropdown = ref(null);
+const fetchOrderData = async () => {
+  try {
+    await adminOrderStore.fetchOrders()
+    
+    orderStats.value = {
+      total: adminOrderStore.totalOrders,
+      inProgress: adminOrderStore.ordersInProgress.length,
+      completed: adminOrderStore.completedOrders.length,
+      canceled: adminOrderStore.canceledOrders.length
+    }
+    
+    console.log('✅ Orders loaded:', adminOrderStore.orders.length);
+  } catch (error) {
+    console.error('❌ Error loading orders:', error);
+    showNotification('error', 'Error', 'Failed to load orders');
+  }
+}
 
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
+const viewOrderDetail = async (order) => {
+  selectedOrder.value = order
+  showOrderDetailModal.value = true
+}
 
-const closeDropdown = () => {
-  showDropdown.value = false;
-};
+const closeOrderDetailModal = () => {
+  showOrderDetailModal.value = false
+  selectedOrder.value = null
+}
+
+const handleCompleteOrder = async (orderId) => {
+  try {
+    await confirm({
+      title: 'Complete Order?',
+      message: 'Are you sure you want to mark this order as completed?',
+      confirmText: 'Complete Order',
+      cancelText: 'Cancel',
+      type: 'success'
+    })
+    
+    await adminOrderStore.completeOrder(orderId)
+    
+    showNotification('success', 'Order Completed!', 'The order has been marked as completed.')
+    
+    if (showOrderDetailModal.value && selectedOrder.value) {
+      selectedOrder.value = adminOrderStore.currentOrder
+    }
+    
+    await fetchOrderData()
+  } catch (error) {
+    if (error && typeof error === 'object' && 'message' in error) {
+      // Usuario canceló la confirmación
+      return
+    }
+    showNotification('error', 'Error', error?.message || 'Failed to complete order')
+  }
+}
+
+const handleCancelOrderAdmin = async (orderId) => {
+  try {
+    await confirm({
+      title: 'Cancel Order?',
+      message: 'Are you sure you want to cancel this order? Stock will be restored.',
+      confirmText: 'Cancel Order',
+      cancelText: 'Keep Order',
+      type: 'danger'
+    })
+    
+    const reason = prompt('Reason for cancellation:', 'Canceled by administrator')
+    if (!reason) return
+    
+    await adminOrderStore.cancelOrder(orderId, reason)
+    
+    showNotification('success', 'Order Canceled!', 'The order has been canceled and stock restored.')
+    
+    if (showOrderDetailModal.value && selectedOrder.value) {
+      selectedOrder.value = adminOrderStore.currentOrder
+    }
+    
+    await fetchOrderData()
+  } catch (error) {
+    if (error && typeof error === 'object' && 'message' in error) {
+      // Usuario canceló la confirmación
+      return
+    }
+    showNotification('error', 'Error', error?.message || 'Failed to cancel order')
+  }
+}
+
+const getOrderStatusClass = (estado) => {
+  switch (estado) {
+    case 'en-curso':
+      return 'bg-blue-100 text-blue-800'
+    case 'completada':
+      return 'bg-green-100 text-green-800'
+    case 'cancelada':
+      return 'bg-red-100 text-red-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const getOrderStatusText = (estado) => {
+  switch (estado) {
+    case 'all':
+      return 'all'
+    case 'en-curso':
+      return 'In Progress'
+    case 'completada':
+      return 'Completed'
+    case 'cancelada':
+      return 'Canceled'
+    default:
+      return estado
+  }
+}
+
+// FUNCIÓN QUE FALTABA: handleClickOutside
+const handleClickOutside = (event) => {
+  // Cerrar dropdown de usuario si se hace clic fuera
+  const dropdown = document.querySelector('[ref="dropdown"]')
+  if (dropdown && !dropdown.contains(event.target)) {
+    showDropdown.value = false
+  }
+  
+  // Cerrar menú de productos si se hace clic fuera
+  const productMenu = document.querySelector('.relative.inline-block.text-left')
+  if (productMenu && !productMenu.contains(event.target)) {
+    activeProductMenu.value = null
+  }
+}
 
 onMounted(async () => {
   if (!authStore.isAdmin) {
@@ -934,6 +1324,7 @@ onMounted(async () => {
   }
 
   await fetchProductData();
+  await fetchOrderData();
   document.addEventListener('click', handleClickOutside);
 });
 

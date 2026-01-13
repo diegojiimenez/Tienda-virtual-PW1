@@ -197,23 +197,84 @@
             </div>
 
             <!-- Order Actions -->
-            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-              <router-link
-                :to="`/orders/${order.id}`"
-                class="text-gray-900 hover:text-gray-700 font-medium text-sm flex items-center"
-              >
-                View Details
-                <ChevronRightIcon class="h-4 w-4 ml-1" />
-              </router-link>
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                            <router-link :to="`/orders/${order.id}`"
+                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
+                                <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                    </path>
+                                </svg>
+                                View Details
+                            </router-link>
 
-              <button
-                v-if="order.estado === 'en-curso'"
-                @click="handleCancelOrder(order)"
-                class="text-red-600 hover:text-red-700 font-medium text-sm"
-              >
-                Cancel Order
-              </button>
+                            <button v-if="order.estado === 'en-curso'" @click="openCancelModal(order)"
+                                class="text-red-600 hover:text-red-700 font-medium text-sm">
+                                Cancel Order
+                            </button>
+           
+             </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+  
+
+    <!-- Modal de Cancelación -->
+    <div
+      v-if="showCancelModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeCancelModal"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div class="p-6">
+          <!-- Icono de advertencia -->
+          <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+
+          <h3 class="text-lg font-bold text-gray-900 text-center mb-2">
+            Cancel Order?
+          </h3>
+
+          <p class="text-sm text-gray-600 text-center mb-4">
+            Are you sure you want to cancel order <span class="font-semibold">{{ orderToCancel?.numeroOrden }}</span>? This action cannot be undone.
+          </p>
+
+          <!-- Campo de razón -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Reason for cancellation (optional)
+            </label>
+            <textarea
+              v-model="cancelReason"
+              rows="3"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 resize-none"
+              placeholder="e.g., Changed my mind, found a better price..."
+            ></textarea>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex gap-3">
+            <button
+              @click="closeCancelModal"
+              class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Keep Order
+            </button>
+            <button
+              @click="confirmCancelOrder"
+              :disabled="canceling"
+              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {{ canceling ? 'Canceling...' : 'Yes, Cancel Order' }}
+            </button>
           </div>
         </div>
       </div>
@@ -226,14 +287,16 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useOrderStore } from '@/stores/order'
 import { ShoppingBagIcon } from '@heroicons/vue/24/outline'
-import { useConfirm } from '@/composables/useConfirm'
 import Navbar from '@/components/Navbar.vue'
 
 const router = useRouter()
 const orderStore = useOrderStore()
-const { confirm } = useConfirm()
 
 const activeFilter = ref('all')
+const showCancelModal = ref(false)
+const orderToCancel = ref(null)
+const cancelReason = ref('')
+const canceling = ref(false)
 
 const filteredOrders = computed(() => {
   if (activeFilter.value === 'all') {
@@ -263,28 +326,38 @@ const formatDate = (date) => {
   })
 }
 
-const handleCancelOrder = async (order) => {
-  try {
-    const motivo = await confirm({
-      title: 'Cancel Order?',
-      message: `Are you sure you want to cancel order ${order.numeroOrden}? This action cannot be undone.`,
-      confirmText: 'Yes, Cancel Order',
-      cancelText: 'Keep Order',
-      type: 'danger'
-    })
+const openCancelModal = (order) => {
+  orderToCancel.value = order
+  cancelReason.value = ''
+  showCancelModal.value = true
+}
 
-    // Si el usuario confirma, pedir motivo
-    const reason = prompt('Please provide a reason for cancellation (optional):')
+const closeCancelModal = () => {
+  showCancelModal.value = false
+  orderToCancel.value = null
+  cancelReason.value = ''
+}
+
+const confirmCancelOrder = async () => {
+  if (!orderToCancel.value) return
+
+  canceling.value = true
+
+  try {
+    await orderStore.cancelOrder(
+      orderToCancel.value.id, 
+      cancelReason.value || 'No reason provided'
+    )
     
-    await orderStore.cancelOrder(order.id, reason || 'No reason provided')
-    
-    // Recargar órdenes
+    closeCancelModal()
     await orderStore.fetchOrders()
+    
+    // Mostrar notificación de éxito (opcional)
+    alert('Order canceled successfully')
   } catch (error) {
-    if (error?.message) {
-      alert(error.message)
-    }
-    // Usuario canceló la acción
+    alert(error?.message || 'Failed to cancel order')
+  } finally {
+    canceling.value = false
   }
 }
 
