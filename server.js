@@ -13,6 +13,7 @@ const errorHandler = require('./src/middleware/errorHandler');
 const authRoutes = require('./src/routes/authRoutes');
 const productRoutes = require('./src/routes/productRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
+const adminRoutes = require('./src/routes/adminRoutes'); // ← AGREGAR
 const { createApolloServer, getGraphQLMiddleware } = require('./src/config/apollo');
 
 const app = express();
@@ -68,6 +69,7 @@ async function startServer() {
   app.use('/api/auth', authRoutes);
   app.use('/api/products', productRoutes);
   app.use('/api/chats', chatRoutes);
+  app.use('/api/admin', adminRoutes); // ← AGREGAR
 
   // Servir frontend en producción
   const frontendDist = path.join(__dirname, 'frontend', 'dist');

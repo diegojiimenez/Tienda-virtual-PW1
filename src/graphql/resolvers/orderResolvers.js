@@ -225,11 +225,11 @@ const orderResolvers = {
       }
 
       // Verificar que el usuario sea dueño de la orden
-      if (order.usuario._id.toString() !== user.id) {
-        throw new GraphQLError('No autorizado', {
-          extensions: { code: 'FORBIDDEN' }
-        });
-      }
+if (order.usuario._id.toString() !== user.id && user.rol !== "administrador") {
+  throw new GraphQLError("No autorizado", {
+    extensions: { code: "FORBIDDEN" },
+  });
+}
 
       // Verificar que la orden no esté completada o cancelada
       if (order.estado === 'completada') {

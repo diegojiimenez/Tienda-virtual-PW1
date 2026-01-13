@@ -507,6 +507,283 @@
             </div>
           </div>
 
+          <!-- Vista de Usuarios -->
+          <div v-else-if="activeTab === 'users'" class="space-y-6">
+            <div class="mb-6 flex items-center justify-between">
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900">Users Management</h1>
+                <p class="text-sm text-gray-600 mt-1">Manage system users</p>
+              </div>
+              
+              <button
+                @click="openCreateUserModal"
+                class="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                <PlusIcon class="h-5 w-5 mr-2" />
+                Add User
+              </button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-600 mb-1">Total Users</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ userStats.total }}</p>
+                  </div>
+                  <UsersIcon class="h-10 w-10 text-gray-400" />
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-600 mb-1">Active</h3>
+                    <p class="text-2xl font-bold text-green-600">{{ userStats.active }}</p>
+                  </div>
+                  <CheckCircleIcon class="h-10 w-10 text-green-400" />
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-600 mb-1">Inactive</h3>
+                    <p class="text-2xl font-bold text-red-600">{{ userStats.inactive }}</p>
+                  </div>
+                  <XCircleIcon class="h-10 w-10 text-red-400" />
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-600 mb-1">Admins</h3>
+                    <p class="text-2xl font-bold text-purple-600">{{ userStats.admins }}</p>
+                  </div>
+                  <div class="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-600 mb-1">Users</h3>
+                    <p class="text-2xl font-bold text-blue-600">{{ userStats.regular }}</p>
+                  </div>
+                  <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="bg-white rounded-lg border border-gray-200">
+              <div class="border-b border-gray-200">
+                <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                  <button
+                    @click="selectedUserFilter = 'all'"
+                    :class="[
+                      selectedUserFilter === 'all'
+                        ? 'border-gray-900 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                      'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors'
+                    ]"
+                  >
+                    All Users
+                    <span
+                      :class="[
+                        selectedUserFilter === 'all'
+                          ? 'bg-gray-900 text-white'
+                          : 'bg-gray-200 text-gray-700',
+                        'ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium'
+                      ]"
+                    >
+                      {{ userStats.total }}
+                    </span>
+                  </button>
+                  <button
+                    @click="selectedUserFilter = 'active'"
+                    :class="[
+                      selectedUserFilter === 'active'
+                        ? 'border-green-500 text-green-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                      'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors'
+                    ]"
+                  >
+                    Active
+                    <span
+                      :class="[
+                        selectedUserFilter === 'active'
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-200 text-gray-700',
+                        'ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium'
+                      ]"
+                    >
+                      {{ userStats.active }}
+                    </span>
+                  </button>
+                  <button
+                    @click="selectedUserFilter = 'inactive'"
+                    :class="[
+                      selectedUserFilter === 'inactive'
+                        ? 'border-red-500 text-red-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                      'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors'
+                    ]"
+                  >
+                    Inactive
+                    <span
+                      :class="[
+                        selectedUserFilter === 'inactive'
+                          ? 'bg-red-500 text-white'
+                          : 'bg-gray-200 text-gray-700',
+                        'ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium'
+                      ]"
+                    >
+                      {{ userStats.inactive }}
+                    </span>
+                  </button>
+                  <button
+                    @click="selectedUserFilter = 'admin'"
+                    :class="[
+                      selectedUserFilter === 'admin'
+                        ? 'border-purple-500 text-purple-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                      'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors'
+                    ]"
+                  >
+                    Admins
+                    <span
+                      :class="[
+                        selectedUserFilter === 'admin'
+                          ? 'bg-purple-500 text-white'
+                          : 'bg-gray-200 text-gray-700',
+                        'ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium'
+                      ]"
+                    >
+                      {{ userStats.admins }}
+                    </span>
+                  </button>
+                </nav>
+              </div>
+
+              <!-- Users Table con anchos fijos -->
+              <div class="overflow-x-auto">
+                <table class="w-full table-fixed">
+                  <colgroup>
+                    <col class="w-[30%]">  <!-- User column -->
+                    <col class="w-[25%]">  <!-- Email column -->
+                    <col class="w-[15%]">  <!-- Role column -->
+                    <col class="w-[12%]">  <!-- Status column -->
+                    <col class="w-[15%]">  <!-- Created column -->
+                    <col class="w-[8%]">   <!-- Actions column -->
+                  </colgroup>
+                  <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        User
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Role
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Created
+                      </th>
+                      <th class="px-6 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-if="filteredUsers.length === 0">
+                      <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        No users found
+                      </td>
+                    </tr>
+                    <tr v-for="user in filteredUsers" :key="user._id" class="hover:bg-gray-50">
+                      <td class="px-6 py-4">
+                        <div class="flex items-center">
+                          <div class="h-10 w-10 flex-shrink-0">
+                            <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                              <span class="text-sm font-medium text-gray-700">
+                                {{ user.nombre?.charAt(0).toUpperCase() }}{{ user.apellido?.charAt(0).toUpperCase() }}
+                              </span>
+                            </div>
+                          </div>
+                          <div class="ml-4 truncate">
+                            <div class="text-sm font-medium text-gray-900 truncate">
+                              {{ user.nombre }} {{ user.apellido }}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-600 truncate">
+                          {{ user.email }}
+                        </div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <span
+                          :class="[
+                            'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full',
+                            getRoleBadge(user.rol)
+                          ]"
+                        >
+                          {{ getRoleText(user.rol) }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4">
+                        <span
+                          :class="[
+                            'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full',
+                            getUserStatusBadge(user)
+                          ]"
+                        >
+                          {{ getUserStatusText(user) }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-500 truncate">
+                          {{ formatDate(user.createdAt) }}
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 text-right">
+                        <button
+                          v-if="user.activo && user._id !== authStore.user?._id"
+                          @click="confirmDeleteUser(user)"
+                          class="text-red-600 hover:text-red-900 text-sm font-medium"
+                        >
+                          Deactivate
+                        </button>
+                        <span v-else-if="user._id === authStore.user?._id" class="text-gray-400 text-sm">
+                          You
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista de Configuración (placeholder) -->
+          <div v-else-if="activeTab === 'settings'" class="bg-white rounded-lg border border-gray-200 p-8 text-center">
+            <p class="text-gray-600">Settings - Coming soon</p>
+          </div>
+
           <!-- Otros tabs (placeholder) -->
           <div v-else class="bg-white rounded-lg border border-gray-200 p-8 text-center">
             <p class="text-gray-600">{{ activeTab }} - Coming soon</p>
@@ -866,6 +1143,172 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Crear Usuario -->
+    <div
+      v-if="showUserModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeUserModal"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-xl font-bold text-gray-900">Create New User</h3>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <!-- Nombre -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              First Name *
+            </label>
+            <input
+              v-model="userForm.nombre"
+              type="text"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="John"
+            />
+          </div>
+
+          <!-- Apellido -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Last Name *
+            </label>
+            <input
+              v-model="userForm.apellido"
+              type="text"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Doe"
+            />
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Email *
+            </label>
+            <input
+              v-model="userForm.email"
+              type="email"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="john.doe@example.com"
+            />
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Password *
+            </label>
+            <input
+              v-model="userForm.password"
+              type="password"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+              placeholder="Minimum 6 characters"
+            />
+          </div>
+
+          <!-- Rol -->
+          <div>
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Role *
+            </label>
+            <select
+              v-model="userForm.rol"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 bg-white"
+            >
+              <option value="usuario">User</option>
+              <option value="administrador">Administrator</option>
+            </select>
+          </div>
+
+          <!-- Estado Activo -->
+          <div class="flex items-center">
+            <input
+              v-model="userForm.activo"
+              type="checkbox"
+              id="activo"
+              class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+            />
+            <label for="activo" class="ml-2 block text-sm text-gray-900">
+              Active User
+            </label>
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-200 flex gap-3">
+          <button
+            @click="closeUserModal"
+            class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            @click="saveUser"
+            :disabled="savingUser"
+            class="flex-1 px-4 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ savingUser ? 'Creating...' : 'Create User' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Cancelación de Orden (Admin) -->
+    <div
+      v-if="showCancelOrderModal && orderToCancel"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      @click.self="closeCancelOrderModal"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div class="p-6">
+          <!-- Icono de advertencia -->
+          <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+
+          <h3 class="text-lg font-bold text-gray-900 text-center mb-2">
+            Cancel Order?
+          </h3>
+
+          <p class="text-sm text-gray-600 text-center mb-4">
+            You are about to cancel order <span class="font-semibold">{{ orderToCancel?.numeroOrden }}</span>. Stock will be restored automatically.
+          </p>
+
+          <!-- Campo de razón -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-900 mb-2">
+              Reason for cancellation *
+            </label>
+            <textarea
+              v-model="cancelReason"
+              rows="3"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 resize-none"
+              placeholder="e.g., Customer request, out of stock, payment issue..."
+            ></textarea>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex gap-3">
+            <button
+              @click="closeCancelOrderModal"
+              class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Keep Order
+            </button>
+            <button
+              @click="confirmCancelOrderAdmin"
+              :disabled="cancelingOrder || !cancelReason.trim()"
+              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {{ cancelingOrder ? 'Canceling...' : 'Cancel Order' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -889,6 +1332,7 @@ import {
   XCircleIcon
 } from '@heroicons/vue/24/outline';
 import adminService from '@/services/AdminService';
+import adminUserService from '@/services/AdminUserService'
 import { useAdminOrderStore } from '@/stores/adminOrder'
 import { useConfirm } from '@/composables/useConfirm'
 
@@ -897,9 +1341,12 @@ const authStore = useAuthStore();
 const adminOrderStore = useAdminOrderStore()
 const { confirm } = useConfirm()
 
+// Estados generales
 const activeTab = ref('products');
 const loading = ref(true);
 const showDropdown = ref(false);
+
+// Estados para productos
 const activeProductMenu = ref(null);
 const showProductModal = ref(false);
 const showDeleteModal = ref(false);
@@ -907,36 +1354,14 @@ const isEditMode = ref(false);
 const savingProduct = ref(false);
 const deletingProduct = ref(false);
 const productToDelete = ref(null);
-
 const stats = ref({
   total: 0,
   inStock: 0,
   outOfStock: 0
 });
 const products = ref([]);
-
-// Estados para órdenes
-const orderStats = ref({
-  total: 0,
-  inProgress: 0,
-  completed: 0,
-  canceled: 0
-})
-const selectedOrderFilter = ref('all')
-const showOrderDetailModal = ref(false)
-const selectedOrder = ref(null)
-
 const productMenuRefs = ref({});
 const dropdownPositions = ref({});
-
-const notification = ref({
-  show: false,
-  type: 'success',
-  title: '',
-  message: ''
-});
-
-let notificationTimeout = null;
 
 const productForm = ref({
   nombre: '',
@@ -950,7 +1375,52 @@ const productForm = ref({
   disponible: true
 });
 
-// Computed para filtrar órdenes
+// Estados para órdenes
+const orderStats = ref({
+  total: 0,
+  inProgress: 0,
+  completed: 0,
+  canceled: 0
+})
+const selectedOrderFilter = ref('all')
+const showOrderDetailModal = ref(false)
+const selectedOrder = ref(null)
+const showCancelOrderModal = ref(false)  // ← AGREGAR
+const orderToCancel = ref(null)  // ← AGREGAR
+const cancelReason = ref('')  // ← AGREGAR
+const cancelingOrder = ref(false)  // ← AGREGAR
+
+// Estados para usuarios
+const userStats = ref({
+  total: 0,
+  active: 0,
+  inactive: 0,
+  admins: 0,
+  regular: 0
+})
+const users = ref([])
+const selectedUserFilter = ref('all')
+const showUserModal = ref(false)
+const userForm = ref({
+  nombre: '',
+  apellido: '',
+  email: '',
+  password: '',
+  rol: 'usuario',
+  activo: true
+})
+const savingUser = ref(false)
+
+// Notificaciones
+const notification = ref({
+  show: false,
+  type: 'success',
+  title: '',
+  message: ''
+});
+let notificationTimeout = null;
+
+// Computeds
 const filteredAdminOrders = computed(() => {
   if (selectedOrderFilter.value === 'all') {
     return adminOrderStore.orders
@@ -958,7 +1428,23 @@ const filteredAdminOrders = computed(() => {
   return adminOrderStore.orders.filter(order => order.estado === selectedOrderFilter.value)
 })
 
-// Watcher para el stock
+const filteredUsers = computed(() => {
+  if (selectedUserFilter.value === 'all') {
+    return users.value
+  }
+  if (selectedUserFilter.value === 'active') {
+    return users.value.filter(user => user.activo)
+  }
+  if (selectedUserFilter.value === 'inactive') {
+    return users.value.filter(user => !user.activo)
+  }
+  if (selectedUserFilter.value === 'admin') {
+    return users.value.filter(user => user.rol === 'administrador')
+  }
+  return users.value
+})
+
+// Watchers
 watch(() => productForm.value.stock, (newStock) => {
   if (newStock === 0) {
     productForm.value.disponible = false;
@@ -967,6 +1453,7 @@ watch(() => productForm.value.stock, (newStock) => {
   }
 });
 
+// Métodos generales
 const showNotification = (type, title, message) => {
   if (notificationTimeout) {
     clearTimeout(notificationTimeout);
@@ -984,6 +1471,39 @@ const showNotification = (type, title, message) => {
   }, 3000);
 };
 
+const handleLogout = () => {
+  authStore.logout();
+  router.push('/login');
+};
+
+const formatDate = (date) => {
+  if (!date) return 'N/A'
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const handleImageError = (event) => {
+  event.target.src = 'https://via.placeholder.com/150?text=No+Image';
+};
+
+const handleClickOutside = (event) => {
+  const dropdown = document.querySelector('[ref="dropdown"]')
+  if (dropdown && !dropdown.contains(event.target)) {
+    showDropdown.value = false
+  }
+  
+  const productMenu = document.querySelector('.relative.inline-block.text-left')
+  if (productMenu && !productMenu.contains(event.target)) {
+    activeProductMenu.value = null
+  }
+}
+
+// ==================== PRODUCTOS ====================
 const setProductMenuRef = (productId, el) => {
   if (el) {
     productMenuRefs.value[productId] = el;
@@ -1016,26 +1536,6 @@ const toggleProductMenu = (productId) => {
       dropdownPositions.value[productId] = spaceBelow < dropdownHeight + 20 ? 'top' : 'bottom';
     }
   });
-};
-
-const handleLogout = () => {
-  authStore.logout();
-  router.push('/login');
-};
-
-const formatDate = (date) => {
-  if (!date) return 'N/A'
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-const handleImageError = (event) => {
-  event.target.src = 'https://via.placeholder.com/150?text=No+Image';
 };
 
 const openCreateModal = () => {
@@ -1167,7 +1667,6 @@ const deleteProduct = async () => {
   }
 };
 
-// FUNCIÓN QUE FALTABA: fetchProductData
 const fetchProductData = async () => {
   loading.value = true;
   try {
@@ -1186,6 +1685,7 @@ const fetchProductData = async () => {
   }
 };
 
+// ==================== ÓRDENES ====================
 const fetchOrderData = async () => {
   try {
     await adminOrderStore.fetchOrders()
@@ -1235,7 +1735,6 @@ const handleCompleteOrder = async (orderId) => {
     await fetchOrderData()
   } catch (error) {
     if (error && typeof error === 'object' && 'message' in error) {
-      // Usuario canceló la confirmación
       return
     }
     showNotification('error', 'Error', error?.message || 'Failed to complete order')
@@ -1243,34 +1742,44 @@ const handleCompleteOrder = async (orderId) => {
 }
 
 const handleCancelOrderAdmin = async (orderId) => {
+  orderToCancel.value = selectedOrder.value || adminOrderStore.orders.find(o => o.id === orderId)
+  cancelReason.value = ''
+  showCancelOrderModal.value = true
+}
+
+const confirmCancelOrderAdmin = async () => {
+  if (!orderToCancel.value || !cancelReason.value.trim()) {
+    showNotification('error', 'Error', 'Please provide a cancellation reason')
+    return
+  }
+
+  cancelingOrder.value = true
+
   try {
-    await confirm({
-      title: 'Cancel Order?',
-      message: 'Are you sure you want to cancel this order? Stock will be restored.',
-      confirmText: 'Cancel Order',
-      cancelText: 'Keep Order',
-      type: 'danger'
-    })
-    
-    const reason = prompt('Reason for cancellation:', 'Canceled by administrator')
-    if (!reason) return
-    
-    await adminOrderStore.cancelOrder(orderId, reason)
+    await adminOrderStore.cancelOrder(orderToCancel.value.id, cancelReason.value)
     
     showNotification('success', 'Order Canceled!', 'The order has been canceled and stock restored.')
     
-    if (showOrderDetailModal.value && selectedOrder.value) {
-      selectedOrder.value = adminOrderStore.currentOrder
+    // Cerrar modales
+    showCancelOrderModal.value = false
+    if (showOrderDetailModal.value) {
+      closeOrderDetailModal()
     }
     
     await fetchOrderData()
   } catch (error) {
-    if (error && typeof error === 'object' && 'message' in error) {
-      // Usuario canceló la confirmación
-      return
-    }
     showNotification('error', 'Error', error?.message || 'Failed to cancel order')
+  } finally {
+    cancelingOrder.value = false
+    orderToCancel.value = null
+    cancelReason.value = ''
   }
+}
+
+const closeCancelOrderModal = () => {
+  showCancelOrderModal.value = false
+  orderToCancel.value = null
+  cancelReason.value = ''
 }
 
 const getOrderStatusClass = (estado) => {
@@ -1287,6 +1796,7 @@ const getOrderStatusClass = (estado) => {
 }
 
 const getOrderStatusText = (estado) => {
+ 
   switch (estado) {
     case 'all':
       return 'all'
@@ -1301,21 +1811,118 @@ const getOrderStatusText = (estado) => {
   }
 }
 
-// FUNCIÓN QUE FALTABA: handleClickOutside
-const handleClickOutside = (event) => {
-  // Cerrar dropdown de usuario si se hace clic fuera
-  const dropdown = document.querySelector('[ref="dropdown"]')
-  if (dropdown && !dropdown.contains(event.target)) {
-    showDropdown.value = false
-  }
-  
-  // Cerrar menú de productos si se hace clic fuera
-  const productMenu = document.querySelector('.relative.inline-block.text-left')
-  if (productMenu && !productMenu.contains(event.target)) {
-    activeProductMenu.value = null
+// ==================== USUARIOS ====================
+const fetchUserData = async () => {
+  try {
+    const [statsResponse, usersResponse] = await Promise.all([
+      adminUserService.getUserStats(),
+      adminUserService.getAllUsers()
+    ])
+    
+    userStats.value = statsResponse.data
+    users.value = usersResponse.data
+    
+    console.log('✅ Users loaded:', users.value.length)
+  } catch (error) {
+    console.error('❌ Error loading users:', error)
+    showNotification('error', 'Error', 'Failed to load users')
   }
 }
 
+const openCreateUserModal = () => {
+  userForm.value = {
+    nombre: '',
+    apellido: '',
+    email: '',
+    password: '',
+    rol: 'usuario',
+    activo: true
+  }
+  showUserModal.value = true
+}
+
+const closeUserModal = () => {
+  showUserModal.value = false
+  userForm.value = {
+    nombre: '',
+    apellido: '',
+    email: '',
+    password: '',
+    rol: 'usuario',
+    activo: true
+  }
+}
+
+const saveUser = async () => {
+  if (!userForm.value.nombre || !userForm.value.apellido || !userForm.value.email || !userForm.value.password) {
+    showNotification('error', 'Error', 'Please fill all required fields')
+    return
+  }
+
+  if (userForm.value.password.length < 6) {
+    showNotification('error', 'Error', 'Password must be at least 6 characters')
+    return
+  }
+
+  savingUser.value = true
+
+  try {
+    await adminUserService.createUser(userForm.value)
+    
+    await fetchUserData()
+    
+    showNotification('success', 'User Created!', `User ${userForm.value.nombre} has been created successfully.`)
+    
+    closeUserModal()
+  } catch (error) {
+    showNotification('error', 'Error', error.response?.data?.message || 'Failed to create user')
+  } finally {
+    savingUser.value = false
+  }
+}
+
+const confirmDeleteUser = async (user) => {
+  try {
+    await confirm({
+      title: 'Deactivate User?',
+      message: `Are you sure you want to deactivate ${user.nombre} ${user.apellido}? They will no longer be able to access the system.`,
+      confirmText: 'Deactivate',
+      cancelText: 'Cancel',
+      type: 'danger'
+    })
+    
+    await adminUserService.deleteUser(user._id)
+    
+    await fetchUserData()
+    
+    showNotification('success', 'User Deactivated!', `${user.nombre} ${user.apellido} has been deactivated.`)
+  } catch (error) {
+    if (error?.message) {
+      showNotification('error', 'Error', error.response?.data?.message || error.message)
+    }
+  }
+}
+
+const getUserStatusBadge = (user) => {
+  if (!user.activo) {
+    return 'bg-red-100 text-red-800'
+  }
+  return 'bg-green-100 text-green-800'
+}
+
+const getUserStatusText = (user) => {
+  return user.activo ? 'Active' : 'Inactive'
+}
+
+const getRoleBadge = (rol) => {
+  return rol === 'administrador' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+}
+
+const getRoleText = (rol) => {
+  return rol === 'administrador' ? 'Admin' : 'User'
+}
+
+// ==================== LIFECYCLE ====================
 onMounted(async () => {
   if (!authStore.isAdmin) {
     showNotification('error', 'Access Denied', 'Only administrators can access this page.');
@@ -1325,6 +1932,7 @@ onMounted(async () => {
 
   await fetchProductData();
   await fetchOrderData();
+  await fetchUserData();
   document.addEventListener('click', handleClickOutside);
 });
 

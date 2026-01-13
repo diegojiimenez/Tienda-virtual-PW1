@@ -4,7 +4,7 @@ const typeDefs = gql`
   type User {
     id: ID!
     nombre: String!
-    apellido: String!
+    apellido: String 
     email: String!
     rol: String!
     activo: Boolean!
