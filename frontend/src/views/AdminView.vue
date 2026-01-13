@@ -681,11 +681,11 @@
                 <table class="w-full table-fixed">
                   <colgroup>
                     <col class="w-[30%]">  <!-- User column -->
-                    <col class="w-[25%]">  <!-- Email column -->
-                    <col class="w-[15%]">  <!-- Role column -->
-                    <col class="w-[12%]">  <!-- Status column -->
-                    <col class="w-[15%]">  <!-- Created column -->
-                    <col class="w-[8%]">   <!-- Actions column -->
+                    <col class="w-[30%]">  <!-- Email column -->
+                    <col class="w-[10%]">  <!-- Role column -->
+                    <col class="w-[13%]">  <!-- Status column -->
+                    <col class="w-[35%]">  <!-- Created column -->
+                    <col class="w-[15%]">   <!-- Actions column -->
                   </colgroup>
                   <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
